@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <POU Name="MAIN" Id="{3630ccad-c9cd-4213-8e6b-1c2fc4e308ce}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	fbSupervisor	: FB_AGVSupervisor(sIPaddr := '127.0.0.1', nPort := 2000);
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+fbSupervisor();]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

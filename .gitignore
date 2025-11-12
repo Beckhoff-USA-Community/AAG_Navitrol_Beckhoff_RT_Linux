@@ -52,3 +52,6 @@ OpenFrameworks.gitignore
 
 
 # End of https://www.toptal.com/developers/gitignore/api/twincat3
+
+*.~u
+.vs/

@@ -1,0 +1,289 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_TcpIpComms" Id="{6d61c116-14be-4e99-8e7e-f76b87c0f675}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_TcpIpComms
+VAR_INPUT
+	bStartComms	: BOOL;
+	sSendData	: STRING;
+	bSend		: BOOL;
+	tCycleTime	: TIME;
+END_VAR
+VAR_OUTPUT
+	sReceivedData	: STRING(255);
+	bError			: BOOL;
+	bBusy			: BOOL;
+	nErrId			: UDINT;
+	bConnected		: BOOL;
+	bReadyMessage	: BOOL := TRUE;
+	nRecBytes		: UDINT;
+END_VAR
+VAR
+	fbConnect 		: FB_SocketConnect;
+	fbSend			: FB_SocketSend;
+	fbClose			: FB_SocketClose;
+	fbReceive		: FB_SocketReceive;
+	_sRemoteHost	: T_IPv4Addr;
+	nState			:	UINT;
+	hSocketHandle	: T_HSocket;
+	
+	bExecuteSend	: BOOL;
+	eConnState		: E_SocketConnectionState;
+	_nPort			: UDINT;
+	RTrig			: R_TRIG;
+	fbTimer			: TON;
+	//
+
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[CASE nState OF
+0: 
+	initComms();
+10: //Connect
+	ConnectToServer();
+	
+20: 
+	SendMessage();
+	
+25: //Receive
+
+30://Disconnecting
+	Disconnect();
+999:
+	
+	nState := 0;
+
+	
+END_CASE
+
+]]></ST>
+    </Implementation>
+    <Method Name="ConnectToServer" Id="{0d4c7d57-6a36-47ee-b54d-3f32329c38e4}">
+      <Declaration><![CDATA[METHOD PRIVATE ConnectToServer : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fbConnect(													// Open connection to server
+		sSrvNetId:= '', 
+		sRemoteHost:= _sRemoteHost, 
+		nRemotePort:= _nPort, 
+		bExecute:= TRUE, 
+		tTimeout:= T#4S, 
+		bBusy=> , 
+		bError=> bError, 
+		nErrId=> nErrID, 
+		hSocket=> hSocketHandle);
+	IF hSocketHandle.handle <> 0 AND NOT (fbConnect.bBusy) THEN			// Handle is created
+		bConnected := TRUE; 
+		bReadyMessage := TRUE;
+		nState := nState + 10;
+	ELSIF bError THEN
+		nState := 999; 	
+	END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Disconnect" Id="{2e0f05dc-6cdf-40b6-bb31-a08afda336ed}">
+      <Declaration><![CDATA[METHOD PRIVATE Disconnect : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fbClose(														// Close connection
+		sSrvNetId:= '', 
+		hSocket:= hSocketHandle, 
+		bExecute:= TRUE, 
+		tTimeout:= T#4S, 
+		bBusy=> , 
+		bError=> bError, 
+		nErrId=> nErrID );
+	IF NOT fbClose.bBusy THEN
+		nState :=0;		
+	END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="initComms" Id="{f7b3046c-47e3-46d4-a632-7e2a691b0d36}">
+      <Declaration><![CDATA[METHOD PRIVATE initComms : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fbConnect(bExecute := FALSE); 
+fbSend(bExecute := FALSE); 
+fbReceive(bExecute := FALSE);
+fbClose(bExecute := FALSE);
+bConnected := FALSE;
+bBusy := FALSE;
+IF bStartComms = TRUE THEN
+	nState := 10;
+	bBusy := TRUE;
+	bError := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="ReceiveMessage" Id="{1a6115e0-daf8-4618-a520-070ad822c57f}">
+      <Declaration><![CDATA[METHOD PRIVATE ReceiveMessage : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[fbReceive(													// ReceiveData
+		sSrvNetId:= '', 
+		hSocket:= hSocketHandle, 
+		cbLen:= SIZEOF(sReceivedData), 
+		pDest:=  ADR(sReceivedData), 
+		bExecute:= true, 
+		tTimeout:= T#100MS, 
+		bBusy=> bBusy, 
+		bError=> bError, 
+		nErrId=> nErrID, 
+		nRecBytes=> nRecBytes);
+IF NOT fbReceive.bBusy THEN									// Check cyclically for new data
+		fbReceive(bExecute := FALSE);
+END_IF
+
+THIS^.bReadyMessage := (THIS^.nRecBytes <> 0);
+	]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="RemoteHost" Id="{f687c24c-e7e0-4dc6-a01f-1dbb2f98e9ee}">
+      <Declaration><![CDATA[PROPERTY PUBLIC RemoteHost : T_Ipv4Addr]]></Declaration>
+      <Get Name="Get" Id="{280b0f02-20c9-4489-82d3-8d2ae4a31a28}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RemoteHost := THIS^._sRemoteHost;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{1bdf3d57-ea6c-44f5-8028-82e3ca885bbf}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[THIS^._sRemoteHost := RemoteHost;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="RemotePort" Id="{ad371972-e2b1-4f48-98ac-8993bd9dd519}">
+      <Declaration><![CDATA[PROPERTY PUBLIC RemotePort : UDINT]]></Declaration>
+      <Get Name="Get" Id="{fe2f32b9-7142-4f7a-b679-11308e67bb6b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[RemotePort := THIS^._nPort;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{5095f057-0790-4607-84cd-738cb02f0870}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[THIS^._nPort := RemotePort;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="SendMessage" Id="{a155f6e7-155c-41cf-8f4e-d885c3b6aa45}">
+      <Declaration><![CDATA[METHOD PRIVATE SendMessage : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF tCycleTime <> T#0MS THEN
+	fbTimer(IN:= NOT fbTimer.Q, PT:= tCycleTime, Q=>, ET=> );
+END_IF
+
+Rtrig(CLK:=bSend,Q=>);
+
+fbSend(
+	sSrvNetId:= '', 
+	hSocket:= hSocketHandle, 
+	cbLen:= 44, 
+	pSrc:= ADR(sSendData), 
+	bExecute:= (Rtrig.Q OR fbTimer.Q), 
+	tTimeout:= T#100MS, 
+	bBusy=> bBusy, 
+	bError=> bError, 
+	nErrId=> nErrId);
+	
+ReceiveMessage();
+IF NOT bStartComms OR bError THEN							// Close connection in case of error or manual communication stop
+		nState := 30;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_TcpIpComms">
+      <LineId Id="11" Count="0" />
+      <LineId Id="32" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="70" Count="1" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="175" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TcpIpComms.ConnectToServer">
+      <LineId Id="6" Count="11" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="18" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TcpIpComms.Disconnect">
+      <LineId Id="6" Count="9" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TcpIpComms.initComms">
+      <LineId Id="6" Count="2" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="3" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="13" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TcpIpComms.ReceiveMessage">
+      <LineId Id="6" Count="9" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="18" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TcpIpComms.RemoteHost.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TcpIpComms.RemoteHost.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TcpIpComms.RemotePort.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TcpIpComms.RemotePort.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TcpIpComms.SendMessage">
+      <LineId Id="22" Count="3" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="26" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="7" Count="7" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="17" Count="1" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="19" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

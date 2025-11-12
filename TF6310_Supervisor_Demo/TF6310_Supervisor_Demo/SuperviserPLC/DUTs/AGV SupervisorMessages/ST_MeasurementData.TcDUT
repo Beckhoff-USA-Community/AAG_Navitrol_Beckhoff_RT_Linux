@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_MeasurementData" Id="{e4c5fc30-0bea-4824-8a66-3c43e5118895}">
+    <Declaration><![CDATA[TYPE ST_MeasurementData EXTENDS ST_SupervisorHeader:
+STRUCT
+	nMessageNo			: UDINT;
+	fW0AngleOfRef		: REAL := 16#7FA00000;
+	fW0SpeedOfRef		: REAL := 16#7FA00000;
+	fW1AngleOfRef		: REAL := 16#7FA00000;
+	fW1SpeedOfRef		: REAL := 16#7FA00000;
+	DiffLWWheelSpeed	: REAL;
+	DiffRWWheelSpeed	: REAL;
+	AGVDriveMode		: UINT;
+	Timestamp			: UDINT;
+	PLCStatus			: WORD;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

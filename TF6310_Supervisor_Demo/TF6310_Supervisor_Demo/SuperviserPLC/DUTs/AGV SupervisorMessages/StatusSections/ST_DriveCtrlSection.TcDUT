@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_DriveCtrlSection" Id="{91d327a5-10d2-4b60-b825-ddff19a14d77}">
+    <Declaration><![CDATA[TYPE ST_DriveCtrlSection EXTENDS ST_SectionBase :
+STRUCT
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

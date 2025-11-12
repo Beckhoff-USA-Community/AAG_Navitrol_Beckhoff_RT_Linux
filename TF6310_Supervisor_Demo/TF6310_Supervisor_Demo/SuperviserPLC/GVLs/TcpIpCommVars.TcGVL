@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="TcpIpCommVars" Id="{bed03919-34a6-4327-ace1-019cf37847e3}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL
+	MessageNo	: UDINT := 1;
+	
+END_VAR
+]]></Declaration>
+  </GVL>
+</TcPlcObject>
