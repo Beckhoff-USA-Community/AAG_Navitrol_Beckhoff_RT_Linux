@@ -2,9 +2,8 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <DUT Name="ST_1001_Initialize_position" Id="{bc9f0d1c-ab16-4cd1-be97-b6a9753db434}">
     <Declaration><![CDATA[{attribute 'pack_mode' := '1'}
-TYPE ST_1001_Initialize_position :
+TYPE ST_1001_Initialize_position EXTENDS ST_SupervisorHeader:
 	STRUCT
-		Header : ST_SupervisorHeader := (nMessageID := 1001, nMessageLength := 24);
 		X	   : REAL; //		X - map coordinate OF the AGV in meters
 		Y	   : REAL; //		Y - map coordinate of the AGV in meters
 		H	   : REAL; //		Heading of the AGV on the map in radians

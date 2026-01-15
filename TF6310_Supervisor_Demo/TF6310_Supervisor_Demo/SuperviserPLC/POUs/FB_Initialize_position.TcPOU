@@ -3,49 +3,35 @@
   <POU Name="FB_Initialize_position" Id="{c0810175-5c65-435a-abbe-5c7a266901a8}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_Initialize_position
 VAR_INPUT
-	RemoteHost : T_IPv4Addr;
-	RemotePort : UDINT;
-	X		   : REAL; //		X - map coordinate OF the AGV in meters
-	Y		   : REAL; //		Y - map coordinate of the AGV in meters
-	H		   : REAL; //		Heading of the AGV on the map in radians
-	Level	   : DINT; //	The level ID on which the AGV is located	
-	Execute	   : BOOL;
+	RemoteHost				   : T_IPv4Addr;
+	RemotePort				   : UDINT;
+	st1001_Initialize_position : ST_1001_Initialize_position := (X := 100.0, Y := 150.0);
+	Execute					   : BOOL;
 END_VAR
 
 VAR_OUTPUT
-	Busy				  : BOOL;
-	Error				  : BOOL;
-	ErrorID				  : UDINT;
-	X_act				  : REAL;  //	X-map coordinate OF the new position in meters
-	Y_act				  : REAL;  //	Y-map coordinate of the new position in meters
-	H_act				  : REAL;  //	Heading of the new position on the map in radians
-	Floor_act			  : UDINT; //		The floor of the new position
-	Initialization_result : UINT;  (*	0 - Failure
-		The position initialization can fail for example if
-			- A good position is not found within pos_ini_max_d..-parameters from the given pos init point
-			- A good position is not found within value of pos_init_max_wait_time-parameter
-			- The AGV is not stationary state, it is performing load or there are scanner related errors active.
-		1 - Success
-			- A good position was found near the given position initialization point and position was successfully initialized.*)
-	Position_confidence : UINT; //		Position confidence percentage (1 - 100%)Describes how well the laser measurements in the new position matches the seen environment.	
+	Busy						: BOOL;
+	Error						: BOOL;
+	ErrorID						: UDINT;
+	st1101_Position_initialized : ST_1101_Position_initialized;
 END_VAR
 
 VAR
 	rtExecute : R_TRIG;
 	State	  : (INIT_FBs,
-		CONNECT,
+		CONNECT_TO_Server,
 		SEND_1001,
-		RECEIVE_1100,
-		RECIVE_1101,
+		RECEIVE_DATA,
 		CLOSE_CONNECTION);
-	SocketConnect						   : FB_SocketConnect;
-	SocketSend							   : FB_SocketSend;
-	SocketClose							   : FB_SocketClose;
-	SocketReceive						   : FB_SocketReceive;
-	Timer								   : TON;
-	st1001_Initialize_position			   : ST_1001_Initialize_position := (X := 100.0, Y := 150.0);
+	Connect								   : FB_SocketConnect;
+	Send								   : FB_SocketSend;
+	Close								   : FB_SocketClose;
+	Receive								   : FB_SocketReceive;
+	ReceiveBuffer						   : U_Recived_bytes_from_Navitrol;
 	st1100_Position_initialization_started : ST_1100_Position_initialization_started;
-	st1101_Position_initialized			   : ST_1101_Position_initialized;
+	
+		UnknowMsgRecivedCounter : UDINT;
+	UnknowMsg				: U_Recived_bytes_from_Navitrol;
 
 	//Event logging
 	FirstScan  : BOOL := TRUE;
@@ -62,121 +48,101 @@ END_IF
 rtExecute(CLK := Execute);
 CASE State OF
 	INIT_FBs: // Init State
-		SocketConnect(bExecute := FALSE);
-		SocketSend(bExecute := FALSE);
-		SocketReceive(bExecute := FALSE);
-		SocketClose(bExecute := FALSE);
+		Connect(bExecute := FALSE);
+		Send(bExecute := FALSE);
+		Receive(bExecute := FALSE);
+		Close(bExecute := FALSE);
 		Busy := FALSE;
 		IF rtExecute.Q THEN
-			st1001_Initialize_position.X	 := X;
-			st1001_Initialize_position.Y	 := Y;
-			st1001_Initialize_position.H	 := H;
-			st1001_Initialize_position.Level := Level;
-			State							 := CONNECT;
-			Busy							 := TRUE;
-			Error							 := FALSE;
-			VerboseMsg.ipArguments.Clear().AddString('Starting communications to:').AddString(RemoteHost).AddUDInt(RemotePort);
-			VerboseMsg.Send();
+			State := CONNECT_TO_Server;
+			Busy  := TRUE;
+			Error := FALSE;
 		END_IF
 
-	CONNECT:
-		SocketConnect(sSrvNetId	  := '',
-					  sRemoteHost := RemoteHost,
-					  nRemotePort := RemotePort,
-					  bExecute	  := TRUE,
-					  tTimeout	  := T#4S);
+	CONNECT_TO_Server:
+		Connect(sSrvNetId	:= '',
+				sRemoteHost := RemoteHost,
+				nRemotePort := RemotePort,
+				bExecute	:= TRUE,
+				tTimeout	:= T#4S);
 
-		IF SocketConnect.hSocket.handle <> 0 AND NOT (SocketConnect.bBusy) THEN
+		IF Connect.hSocket.handle <> 0 AND NOT (Connect.bBusy) THEN
 			State := SEND_1001;
-			VerboseMsg.ipArguments.Clear().AddString('Connected to server:').AddString(RemoteHost).AddUDInt(RemotePort);
+			VerboseMsg.ipArguments.Clear().AddString('Connected to server:').AddString(RemoteHost).AddUDInt(RemotePort).AddString('local port').AddUDInt(Connect.hSocket.localAddr.nPort);
 			VerboseMsg.Send();
-		ELSIF Error THEN
+		ELSIF Connect.bError THEN
 			State := INIT_FBs;
-			ErrorMsg.ipArguments.Clear().AddString('Failed to connect to server:').AddString(RemoteHost).AddUDInt(RemotePort).AddString(', Error:').AddUDInt(SocketConnect.nErrId);
+			Error := TRUE;
+			ErrorMsg.ipArguments.Clear().AddString('Failed to connect to server:').AddString(RemoteHost).AddUDInt(RemotePort).AddString(', Error:').AddUDInt(Connect.nErrId);
 			ErrorMsg.Send();
 		END_IF
 
 	SEND_1001:
-		SocketSend(sSrvNetId := '',
-				   hSocket	 := SocketConnect.hSocket,
-				   cbLen	 := SIZEOF(st1001_Initialize_position),
-				   pSrc		 := ADR(st1001_Initialize_position),
-				   bExecute	 := TRUE,
-				   tTimeout	 := T#2S);
+		Send(sSrvNetId := '',
+			 hSocket   := Connect.hSocket,
+			 cbLen	   := SIZEOF(st1001_Initialize_position),
+			 pSrc	   := ADR(st1001_Initialize_position),
+			 bExecute  := TRUE,
+			 tTimeout  := T#2S);
 
-		IF NOT SocketSend.bBusy THEN
-			IF NOT SocketSend.bError THEN
-				State := RECEIVE_1100;
+		IF NOT Send.bBusy THEN
+			IF NOT Send.bError THEN
+				State := RECEIVE_DATA;
 			ELSE
 				Error	:= TRUE;
-				ErrorID := SocketSend.nErrID;
+				ErrorID := Send.nErrID;
 				State	:= CLOSE_CONNECTION;
 			END_IF
 
-			SocketSend(bExecute := FALSE);
+			Send(bExecute := FALSE);
 		END_IF
 
-	RECEIVE_1100:
-		SocketReceive( // ReceiveData
+	RECEIVE_DATA:
+		Receive( // ReceiveData
 			sSrvNetId := '',
-			hSocket	  := SocketConnect.hSocket,
-			cbLen	  := SIZEOF(st1100_Position_initialization_started),
-			pDest	  := ADR(st1100_Position_initialization_started),
+			hSocket	  := Connect.hSocket,
+			cbLen	  := SIZEOF(ReceiveBuffer),
+			pDest	  := ADR(ReceiveBuffer),
 			bExecute  := TRUE,
 			tTimeout  := T#3S);
 
-		IF NOT SocketReceive.bBusy THEN // Check cyclically for new data
-			IF NOT SocketReceive.bError THEN
-				IF st1100_Position_initialization_started.nMessageID = 1100 THEN
-					State := RECIVE_1101;
-				END_IF
+		IF NOT Receive.bBusy AND Receive.nRecBytes <> 0 THEN // Check cyclically for new data
+			IF NOT Receive.bError THEN
+				CASE ReceiveBuffer.Header.Message_ID OF
+					1100:
+						MEMCPY(destAddr := ADR(st1100_Position_initialization_started), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st1100_Position_initialization_started));
+						VerboseMsg.ipArguments.Clear().AddString('Position intilization started');
+						VerboseMsg.Send();
+
+					1101:
+						MEMCPY(destAddr := ADR(st1101_Position_initialized), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st1101_Position_initialized));
+						VerboseMsg.ipArguments.Clear().AddString('Position intialized');
+						VerboseMsg.Send();
+						State := CLOSE_CONNECTION;
+
+				ELSE
+					UnknowMsgRecivedCounter := UnknowMsgRecivedCounter + 1;
+					MEMCPY(destAddr := ADR(UnknowMsg), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(UnknowMsg));
+					ErrorMsg.ipArguments.Clear().AddString('Unknow msg type recived with ID:').AddUInt(ReceiveBuffer.Header.Message_ID);
+					ErrorMsg.Send();
+				END_CASE
 			ELSE
 				Error	:= TRUE;
 				ErrorID := ErrorID;
 				State	:= CLOSE_CONNECTION;
 			END_IF
 
-			SocketReceive(bExecute := FALSE);
-		END_IF
-
-	RECIVE_1101:
-		SocketReceive( // ReceiveData
-			sSrvNetId := '',
-			hSocket	  := SocketConnect.hSocket,
-			cbLen	  := SIZEOF(st1101_Position_initialized),
-			pDest	  := ADR(st1101_Position_initialized),
-			bExecute  := TRUE,
-			tTimeout  := T#3S);
-
-		IF NOT SocketReceive.bBusy THEN // Check cyclically for new data
-			IF NOT SocketReceive.bError THEN
-				IF st1101_Position_initialized.nMessageID = 1101 THEN
-					State := CLOSE_CONNECTION;
-					X_act:=st1101_Position_initialized.X;
-					Y_act:=st1101_Position_initialized.Y;
-					H_act:=st1101_Position_initialized.H;
-					Floor_act:=st1101_Position_initialized.Floor;
-					Initialization_result:=st1101_Position_initialized.Initialization_result;
-					Position_confidence:=st1101_Position_initialized.Position_confidence;
-				END_IF
-			ELSE
-				Error	:= TRUE;
-				ErrorID := ErrorID;
-				State	:= CLOSE_CONNECTION;
-			END_IF
-
-			SocketReceive(bExecute := FALSE);
+			Receive(bExecute := FALSE);
 		END_IF
 
 	CLOSE_CONNECTION:
-		SocketClose( // Close connection
+		Close( // Close connection
 			sSrvNetId := '',
-			hSocket	  := SocketConnect.hSocket,
-			bExecute  := TRUE,
+			hSocket	  := Connect.hSocket,
 			tTimeout  := T#4S);
 
-		IF NOT SocketClose.bBusy THEN
-			SocketClose(bExecute := FALSE);
+		IF NOT Close.bBusy THEN
+			Close(bExecute := FALSE);
 			State := INIT_FBs;
 		END_IF
 END_CASE]]></ST>

@@ -50,6 +50,9 @@
     <Compile Include="DUTs\Navitrol to Supervisor response\3102\U_Debug_ST_3102.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\Navitrol to Supervisor response\U_Recived_bytes_from_Navitrol.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\ST_SupervisorHeader.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -182,6 +185,12 @@
             <v>WriteLineIDs</v>
             <v>True</v>
           </d>
+        </o>
+        <v>{8F99A816-E488-41E4-9FA3-846536012284}</v>
+        <o>
+          <v n="Name">"{8F99A816-E488-41E4-9FA3-846536012284}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
         </o>
         <v>{eeeeeeee-3909-4298-8022-501ac3238667}</v>
         <o>

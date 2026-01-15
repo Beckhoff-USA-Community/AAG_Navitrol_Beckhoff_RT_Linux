@@ -1,0 +1,464 @@
+# Navigation software parameter file
+#
+# Generated with navigation software 6.38.02 6c3bd4d6 2022-08-25T06:23:59+00:00
+#
+# THIS FILE IS AUTOMATICALLY FORMATTED BY NAVIGATION SOFTWARE
+# CHANGES TO COMMENTS ARE LOST DURING AUTOMATIC FORMATTING
+#
+# Text starting with '#' are regarded as comments
+# Actual data lines start with parameter type:
+#  I - signed integer (32 bit)
+#  U - unsigned integer (32 bit)
+#  F - floating point number (32 bit)
+#  S - string
+# Data line fields are separated with a comma ','
+# Syntax for parameters:
+# TYPE,NAME,VALUE
+#
+
+# Parameters specific to each vehicle type
+I,machine_type_id,                                             10020 # Id of vehicle type
+U,machine_type_key,                                       2459481637 # Verification key of machine type id
+F,dim_front,                                                1.300000 # min 0.010000, max 100.000000
+F,dim_rear,                                                -0.510000 # min -100.000000, max -0.010000
+F,dim_left,                                                 0.270000 # min 0.010000, max 100.000000
+F,dim_right,                                               -0.270000 # min -100.000000, max -0.010000
+I,scanner_model_front,                                             0 # Model of front scanner model: 0 = Sick Ethernet, 1 = Sick S300, 2 = Omron OS32C, 3 = Pepperl+Fuchs R2000 UHD 4 = Velodyne VLP16, 5 = Leuze RSL400, 6 = Hokuyo UAM-05LP, 7 = Keyence SZ-V 32N, 8 = Sick uScan, 9 = Sick S300 TCP/IP; min 0, max 12
+I,scanner_model_rear,                                              0 # Same as scanner_model_front; min 0, max 12
+I,scan_rear_front_selection,                                       3 # Defines which scanners are connected: 1 = rear scanner only, 2 = front scanner only, 3 = both scanners; min 1, max 3
+I,scan_rear_front_localization_selection,                          3 # Defines which scanners are used for localization: 1 = rear scanner only, 2 = front scanner only, 3 = both scanners; min 1, max 3
+S,front_scanner_ip,                                     192.168.5.23
+S,rear_scanner_ip,                                      192.168.5.21
+I,front_scanner_port,                                           6061 # Sick 2111, PEF 80, Omron 44818, Velodyne 2368, Hokuyo 10940, Leuze 9999, Keyence 8800, QuanergyM1 4141
+I,rear_scanner_port,                                            6060 # Sick 2111, PEF 80, Omron 44818, Velodyne 2368, Hokuyo 10940, Leuze 9999, Keyence 8800, QuanergyM1 4141
+I,scan_rear_upside_down,                                           0 # 1 = scanner is installed upside down; min 0, max 1
+I,scan_front_upside_down,                                          0 # 1 = scanner is installed upside down; min 0, max 1
+F,scan_delay,                                               0.000000 # Delay of scanner measurements in ms relative to odometry measurements (negative if scanner is slower than odometry)
+I,scan_timing_mode,                                                1 # 1 to enable automatic scanner timestamp variation correction; min 0, max 1
+I,odo_timing_mode,                                                 1 # 1 to enable automatic odometry timestamp variation correction; min 0, max 1
+I,odo_max_interval_ms,                                            60
+I,odo_max_interval_stdev_us,                                    2500 # Defines how much measured deadrec interval standard deviation can be in us
+I,control_interval_us,                                         30000 # min 100, max 100000
+F,control_interval_error_ratio,                             1.200000 # Defines how much measured control interval can deviate from target (e.g. 1.1 means 10%); min 1.100000, max 10.000000
+I,control_interval_max_stdev_us,                                1000 # Defines how much measured control interval standard deviation can be in us; min 100, max 10000
+I,beep_mode,                                                       0 # 0 = no beeps, 1 = battery low, 2 = battery low & every 10 seconds; min 0, max 2
+I,mot_ctrl_driving_max_output,                                  1000 # Maximum output sent to the motor controller (cutoff point)
+I,veh_inte_heartbeat_interval,                                     0 # How often to send active errors/warnings to PLC/agv controller in ms
+I,veh_inte_error_message_mode,                                     2 # 0 to not send errors/warnings to PLC/agv controller, 1 to send active errors, 2 to send active errors and warnings; min 0, max 2
+I,start_pos_ini_enabled,                                           1 # 1 to automatically initialize position upon startup if vehicle hasn't moved; min 0, max 1
+
+# Parameters that need to be calibrated for each individual vehicle
+I,machine_id,                                                      1 # Machine ID number reported to fleet control and other systems; min 1, max 65535
+I,fleet_control_port,                                           6007
+F,scan_rear_x,                                            -0.0900000
+F,scan_rear_y,                                              0.000000
+F,scan_front_x,                                             0.990000
+F,scan_front_y,                                             0.000000
+F,scan_rear_sen_ang,                                       90.000000 # min -180.000000, max 180.000000
+F,scan_front_sen_ang,                                      90.000000 # min -180.000000, max 180.000000
+F,scan_front_beam_min_ang_deg,                              0.000000 # Scanner beam min&max angles define the range of valid scanner measurement beams for each scanner with 0 deg being the first measurement beam; min 0.000000, max 360.000000
+F,scan_front_beam_max_ang_deg,                            360.000000 # min 0.000000, max 360.000000
+F,scan_rear_beam_min_ang_deg,                               0.000000 # min 0.000000, max 360.000000
+F,scan_rear_beam_max_ang_deg,                             360.000000 # min 0.000000, max 360.000000
+F,mot_ctrl_drive_dist_scale,                         -0.000001000000
+S,supervisor_eth_ip,                                       127.0.0.1 # Supervisor IP address. Needed if Supervisor works as a server.
+I,supervisor_eth_port,                                          2000 # Supervisor communication server side port; min 1, max 65535
+I,supervisor_eth_server,                                           0 # Defines whether Supervisor is server or client, 0 - client, 1 - server; min 0, max 1
+I,supervisor_eth_endianness,                                       0 # Defines Supervisor data endianness, 0 - little endian, 1 - big endian; min 0, max 1
+I,supervisor_eth_enabled,                                          1 # Enables Supervisor interface; min 0, max 1
+I,fleet_control_type,                                              1 # 0 - No fleet control, 1 - Our own fleet control, 2 - External fleet control, 3 - VD(M)A fleet control; min 0, max 3
+
+# Route Driver parameters
+I,route_driver_enabled,                                            0 # 1 to enable route driver; min 0, max 1
+F,route_driver_max_diff_h_deg,                             15.000000 # How much difference (degrees) is allowed between vehicle heading and points heading, when searching shortest route
+F,route_driver_max_diff_dist_m,                             0.200000 # How much distance (meters) is allowed between vehicle position and route, when searching shortest route
+F,route_driver_max_diff_alt_dist_m,                        0.0500000 # How much distance (meters) is allowed between closest route point and alternative route points, when searching shortest route
+I,route_driver_max_seg_cnt_in_drive_order,                        30 # Maximum number of segments in one drive order; min 5, max 50
+
+
+# General positioning parameters
+I,loc_corr_onedir_in_use,                                          0 # 1 to allow one dimensional xy correction when driving in long corridors; min 0, max 1
+F,loc_xy_max_corr,                                        0.00150000 # maximum correction allowed in x and y directions. If the localization position correction is more than this, then the corrections are limited
+F,loc_h_max_corr,                                          0.0500000 # (degrees)
+I,loc_corr_when_stationary,                                        1 # 0 to disable position correction when odometry data indicates the vehicle isn't moving; min 0, max 1
+
+# General position confidence parameters
+F,pos_conf_limit,                                          40.000000
+F,pos_conf_gain,                                            0.950000
+
+# General position initialization parameters
+I,pos_init_max_wait_time,                                      10000
+F,pos_ini_min_conf,                                        70.000000
+I,pos_ini_min_reflectors_seen,                                     0 # Minimum number of reflectors required to be seen when initializing position
+F,pos_ini_max_reflector_pos_err,                           0.0500000 # Maximum position error of reflectors during position initialization
+
+# Automatic odometry correction parameters
+F,odo_err_est_alpha,                                      0.00200000 # Positioning error averaging weight, must be higher than odo_auto_corr_alpha
+F,odo_auto_corr_alpha_dh,                                   0.000000 # Percentage of averaged positioning error applied on odometry turning rate correction, must be lower than odo_err_est_alpha, set to 0 to disable, ex. value 0.001
+F,odo_auto_corr_alpha_ds,                                   0.000000 # Percentage of averaged positioning error applied on odometry distance correction, must be lower than odo_err_est_alpha, set to 0 to disable, ex. value 0.001
+F,odo_auto_corr_alpha_h,                                    0.000000 # Percentage of averaged positioning error applied on odometry heading correction, must be lower than odo_err_est_alpha, set to 0 to disable, ex. value 0.001
+I,odo_auto_corr_h_mode,                                            0 # How odometry heading correction is applied, 0 = to scanner heading(s), 1 = to driving axle heading; min 0, max 1
+F,odo_auto_corr_max_curv_deg_p_m,                          10.000000 # Maximum curvature for odometry correction to be updated, degrees/meter
+F,odo_auto_corr_max_dherr_deg,                              4.000000 # Maximum odometry turning correction amount, degrees/meter
+F,odo_auto_corr_max_dserr,                                 0.0800000 # Maximum odometry distance correction amount, percentage of travelled distance
+F,odo_auto_corr_max_herr_deg,                               4.000000 # Maximum odometry heading correction amount, degrees
+
+# IMU parameters
+I,imu_type,                                                        0 # 0 - no IMU, 1 - LPMS-CU2/URS2 USB, 2 - LPMS-URS2 serial, 3 - LPMS-CU2 CANOpen, 4 - LPMS IG1 USB, 5 - LPMS IG1 CANOpen; min 0, max 5
+I,imu_lpms_data_size,                                              1 # LPMS USB/serial data element size: 0 - 16 bit data, 1 - 32 bit data; min 0, max 1
+S,imu_serial_port,                                      /dev/ttyUSB0 # Serial port to be used for IMU communication
+I,imu_id,                                                          1 # In case of CAN IMU, this is CAN node id (1...127); min 1, max 127
+I,imu_dh_use,                                                      0 # Use IMU for dead reckoning:  0 - never use imu, 1 - use imu dh as is, 2 - use combination; min 0, max 2
+I,imu_max_timeout_ms,                                            250 # Maximum time (ms) without IMU data for error to be raised; min 50, max 1000
+
+# Sensor fusion parameters
+I,sf_use_sensor_fusion,                                            0 # Use sensor fusion instead of only laser localization. 0 = NO, 1 = YES; min 0, max 1
+I,sf_imu_mode,                                                     0 # IMU usage mode, 0 - Dont use, 1 - Only gyro, 2 - Gyro and acc without tilt estimation, 3 - 3D gyro and acc with instantenous tilt measurements, 4 - 3D gyro and acc; min 0, max 4
+I,sf_laser_quality_mode,                                           2 # Choose mode of laser quality. 0 - Disregard laser quality, 1- Apply quality scale to x and y, 2 - Apply quality scale to x, y heading; min 0, max 2
+I,sf_laser_quality_scale,                                         10 # How much quality should affect the filtering. Between 10 and 100.; min 10, max 100
+F,sf_conf_max_dist,                                        10.000000 # The maximum traveled distance where xy pos conf drop will be fully reported; min 0.000100, max 500000.000000
+I,sf_use_pure_odom_dt,                                             1 # Use the pure odometry dt instead of timestamp difference to calculate speed. 0 = No, 1 = Yes; min 0, max 1
+F,sf_imu_mounting_x_angle_deg,                              0.000000 # IMU installation angle around vehicle x axis in degrees
+F,sf_imu_mounting_y_angle_deg,                              0.000000 # IMU installation angle around vehicle y axis in degrees
+F,sf_imu_mounting_z_angle_deg,                              0.000000 # IMU installation angle around vehicle z axis in degrees
+F,sf_imu_mounting_x_pos,                                    0.000000 # IMU installation position in x axis
+F,sf_imu_mounting_y_pos,                                    0.000000 # IMU installation position in y axis
+F,sf_imu_mounting_z_pos,                                    0.000000 # IMU installation position in z axis
+
+# General position controller parameters
+I,pc_predict_ms,                                                 100 # Motor controller delay from output value change to change in feedback
+F,pc_max_dist_err,                                          0.200000
+F,pc_max_head_err,                                        180.000000
+F,pc_pid_heading_p,                                         4.000000 # min 0.100000, max 100.000000
+F,pc_pid_dist_p,                                            4.000000 # min 0.100000, max 100.000000
+F,pc_pid_rot_dt,                                           0.0500000
+F,min_slow_down_speed,                                      0.050000 # Speed (m/s) for slowdown when approaching the end of the trajectory
+F,slow_down_crawl_dist,                                     0.100000 # Distance (m) from trajectory end to drive with a slower speed. See parameter min_slow_down_speed
+F,pc_starting_speed,                                        0.100000 # Drive start speed for trajectory. Target speed is set to this speed at minimum, even with slower acceleration parameter. Set 0.0 to disable.; min 0.000000, max 1.000000
+F,pc_pid_speed_setting[0],                                  0.150000 # Change PID settings after the speed is higher than given here (0.0 == disabled)
+F,pc_pid_speed_setting[1],                                  0.800000
+F,pc_pid_speed_setting[2],                                  1.200000
+F,pc_pid_speed_dist_p[0],                                   4.000000 # min 0.000000, max 100.000000
+F,pc_pid_speed_dist_p[1],                                   4.000000 # min 0.000000, max 100.000000
+F,pc_pid_speed_dist_p[2],                                   4.000000 # min 0.000000, max 100.000000
+F,pc_pid_speed_heading_p[0],                                4.000000 # min 0.000000, max 100.000000
+F,pc_pid_speed_heading_p[1],                                4.000000 # min 0.000000, max 100.000000
+F,pc_pid_speed_heading_p[2],                                4.000000 # min 0.000000, max 100.000000
+F,max_turn_rate_deg_p_s,                                   30.000000 # Maximum turning rate of vehicle
+I,pc_direction_change_wait_ms,                                   500 # Time to be stopped when changing direction, 0 to change direction without zeroing reference velocity
+F,pivot_target_head_diff_deg,                               1.000000 # Target heading difference for ending pivot
+F,pivot_max_dist_err,                                       0.100000 # Maximum distance error during pivot
+F,pivot_speed,                                              0.100000 # Drive point velocity during pivot
+F,pivot_crawl_speed,                                       0.0400000 # Drive point velocity during pivot when close to target
+F,pivot_crawl_head_diff_deg,                               10.000000 # Slow driving angular distance during pivot
+F,pivot_dec_head_deg,                                      30.000000 # Angular distance for decelerating from pivot speed to slowdown speed during pivot
+I,auto_moving_delay_msec,                                          0 # 0 to disable
+I,pc_virtual_tag_active,                                           1 # Report active virtual tag only if 1; last seen if 0
+
+# Wallmon / soft stopping parameters
+I,wallmon_enabled,                                                 0 # 0 = Wallmon disabled 1 = Wallmon enabled; min 0, max 1
+F,wallmon_slow_dist,                                        0.200000 # Slow down if scan points are detected closer than this; min 0.000000, max 100.000000
+F,wallmon_stop_dist,                                        0.100000 # Stop if scan points are detected closer than this; min 0.000000, max 100.000000
+F,wallmon_stop_manual_speed,                                0.000000 # Manual control speed when wallmon has triggered slowdown or stop; min 0.000000, max 10.000000
+F,wallmon_pred_ds,                                        0.01000000 # Step size for wallmon. Lower value takes more time but is more accurate; min 0.001000, max 1.000000
+F,wallmon_pred_safety_margin,                              0.0500000 # How close to AGV predicted frame the scans have to be to trigger slow/stop; min 0.000000, max 5.000000
+I,wallmon_min_hits,                                                3 # Minimum amount of Wallmon hits to trigger stop/slow; min 1, max 100
+F,wallmon_min_scan_dist,                                  0.01000000 # Ignore scans closer than this to avoid false positives caused by noise; min 0.000000, max 20.000000
+I,pc_s300_zone_violation_as_warning_zone2,                         1 # 1 to use S300 protection zone violation bits as warning zone 2, meaning only slowing down on zone violation; min 0, max 1
+I,pc_fstop_on_estop,                                               1 # 1 to go to FSTOP state when emergency stop is active; min 0, max 1
+I,pc_soft_stop_enabled,                                            0 # 1 to enable soft stopping and slowing down speed ramps; min 0, max 1
+F,pc_soft_stop_obs_wheel_dec,                               0.500000 # Deceleration rate when doing a soft slow down or stopping due to obstacle
+F,pc_soft_slow_wheel_speed,                                 0.300000 # Wheel speed when soft slow is active (e.g. obstacle nearby)
+I,wallmon_scanner_zone_mode,                                       1 # >0 to slow down with warning zone 2 and to stop with warning zone 1 and protection zone; 0 to ignore safety zones; with value 1 stopping is done with slow down ramp, with value 2 stopping is done immediately; min 0, max 2
+F,pc_soft_slow_raw_conf_limit,                              0.000000 # When raw position confidence drops below this value, soft slow will be triggered; min 0.000000, max 100.000000
+F,pc_soft_slow_conf_limit,                                  0.000000 # When filtered position confidence drops below this value, soft slow will be triggered; min 0.000000, max 100.000000
+
+# Speed controller parameters
+F,mot_ctrl_max_wheel_v_fw,                                  0.800000 # Max drive wheel velocity when driving forwards
+F,mot_ctrl_max_wheel_v_bw,                                  0.800000 # Max drive wheel velocity when driving in reverse
+F,mot_ctrl_max_wheel_acc,                                   0.30000
+F,mot_ctrl_max_wheel_dec,                                   0.300000
+F,mot_ctrl_output_lowpass_alpha,                            1.000000
+F,mot_ctrl_max_steer_rate_deg_p_s,                         30.000000
+F,mot_ctrl_steer_ang_deadband_deg,                          0.250000
+
+# Logging parameters:
+
+# - Value 0 disables logging.
+
+# - If parameter has multiple logging levels, lower level logging is included when higher value is used.
+I,log_veh_inte_eth,                                                2 # Log ethernet supervisor messages: 0 - message info, 4 - all bytes.
+
+# Calibration parameters
+
+# Advanced scanner parameters
+F,scan_min_dist,                                            0.200000
+F,scan_s300_max_dist,                                      29.900000 # min 0.000000, max 29.900000
+F,scan_sick_eth_max_dist,                                  65.000000 # min 0.000000, max 131.000000
+F,scan_pef_max_dist,                                      131.000000 # min 0.000000, max 131.000000
+F,scan_omron_max_dist,                                     65.500000 # min 0.000000, max 65.500000
+F,scan_hokuyo_max_dist,                                    39.900002 # min 0.000000, max 65.500000
+F,scan_leuze_max_dist,                                     65.500000 # min 0.000000, max 65.500000
+F,scan_velodyne_max_dist,                                 100.000000 # min 0.000000, max 131.000000
+F,scan_uscan_max_dist,                                     39.900002 # min 0.000000, max 65.500000
+F,scan_halo_ang,                                            1.500000
+I,scan_max_dt_err_ms,                                             10
+I,scan_rot_cor,                                                    1 # 1 to enable scanner rotation correction; min 0, max 1
+I,scan_omron_set_warning_zones,                                    0 # 0 to not change active Omron scanner warning zones; min 0, max 1
+I,scan_pef_samples_per_scan,                                    5040 # Valid values: 72, 90, 120, 144, 180, 240, 360, 400, 450, 480, 600, 720, 800, 900, 1200, 1440, 1800, 2400, 3600, 4200, 5040, 5600, 6300, 7200, 8400, 10080, 12600, 16800, 25200; min 72, max 25200
+I,scan_pef_freq,                                                  40 # Valid maximum frequency / samples per scan: 10/25200, 15/16800, 20/12600, 25/10080, 30/8400, 35/7200, 40/6300, 45/5600, 50/5040; min 10, max 50
+I,scan_pef_use_nth_scan,                                           1
+I,scan_pef_display_on,                                             0
+F,scanner_dAng_factor,                                      1.000000 # Common scanner dAng scaling, -1 to disable, >0 scaling factor for dAng (reasonable values 0.995 ... 1.005)
+
+
+# Advanced position controller parameters
+F,symbol_point_enter_dist,                                  0.100000
+F,symbol_point_exit_dist,                                   0.250000
+F,pc_end_gain_dist,                                         0.000000 # 0 to disable, recommended value 1
+F,pc_end_gain1,                                             6.000000
+F,pc_end_gain2,                                            0.0200000
+F,pc_end_max_gain,                                          4.000000
+F,pc_on_route_err_scale,                                    0.800000 # Multiplier for distance and heading error limits to apply for on route check (has to be < 1 to avoid false positives)
+F,ref_speed_scale,                                          1.000000
+F,ui_max_dist_to_route,                                     3.000000
+F,rtr_max_dist,                                             2.000000 # The defined route points must be inside this distance (m) from the navigation point to be checked as potential return close points
+F,rtr_speed,                                                0.300000 # The maximum speed  (m/s) during the return to route drive
+F,rtr_max_head_err_deg,                                     5.000000 # The maximum heading error when checking if the AGV is already on the route and return to route is not needed
+
+# Battery parameters
+I,battery_percentage_from_mot_ctrl,                                1 # 1 to read battery percentage from motor controller, 0 to calculate it from battery voltage; min 0, max 1
+F,battery_alert_percentage,                                 0.000000 # %
+F,battery_alert_voltage,                                    0.000000
+F,battery_voltage_gain,                                     0.800000
+F,battery_empty_voltage,                                   24.000000
+F,battery_voltage1,                                        25.400000
+F,battery_percentage1,                                      5.000000
+F,battery_voltage2,                                        26.850000
+F,battery_percentage2,                                     60.000000
+F,battery_full_voltage,                                    29.100000
+
+# Other parameters
+I,teach_file_format,                                               5 # Saved teach file format version, 1 = old format, 2 = new format released with new segment files (1.0.9.6), 3 = new format with high resolution reflector data (Tools 2.01), 4 = support for array parameters (Tools 2.20), 5 = support for external localization (Tools 2.5X); min 1, max 5
+F,corr_peak_edge_dist,                                      0.100000
+F,corr_other_peak_min_dist,                                0.0500000
+F,corr_peak_edge_ratio,                                     0.980000
+F,corr_scan_max_weight_dist,                                8.000000
+F,corr_scan_min_dist,                                       0.500000
+F,corr_resolution,                                        0.00500000
+F,corr_range,                                               0.260000
+I,corr_table_pad_mode,                                             1 # 0 = none, 1 = min, 2 = avg; min 0, max 2
+F,corr_range_ini_pos,                                       1.000000
+F,corr_blur_radius,                                         3.000000
+F,corr_xyh_pol_resolution,                                  0.100000 # min 0.000100, max 10.000000
+F,corr_pol_range,                                           2.000000
+F,corr_pol_range_ini_pos,                                  20.000000
+F,corr_ref_pol_blur_radius,                                 8.000000
+F,corr_pol_max_dr,                                         0.0250000
+F,corr_pol_max_pt_dist,                                     0.300000
+F,corr_pol_peak_min_val,                                    0.000000
+F,corr_pol_max_peak_ratio,                                  0.900000
+F,corr_ref_pol_new_mode_max_dist,                           3.000000
+I,scan_n_buffered_meas,                                            0
+F,loc_ref_dist_corr,                                       0.0250000
+F,loc_ref_point_sel_dist,                                   0.500000
+F,loc_ref_max_dist_diff,                                    0.100000
+F,loc_ref_tot_dis_err,                                      0.550000
+F,loc_ref_max_angle_corr,                                   5.000000
+I,loc_ref_min_detected_amount,                                     2
+F,loc_ref_single_min_dist,                                  2.000000
+F,loc_same_sign_gain,                                       2.000000
+F,loc_reflector_max_dist,                                  15.000000 # The acceptable distance (meters) to reflector for use in obtaining closest reflectors
+F,loc_reflector_pair_match_dist,                           0.0700000
+F,loc_same_reflector_dist,                                  0.500000
+I,corr_conf_dte_use_peak,                                          0
+F,corr_conf_min_dist_to_env,                              0.01000000
+F,corr_conf_max_dist_to_env,                               0.0500000 # min 0.000010, max 10.000000
+F,corr_conf_dte_hist_portion,                               0.500000
+F,corr_conf_dte_hist_max_dist,                              0.100000
+I,corr_conf_min_scale_npts,                                       50
+I,corr_conf_max_scale_npts,                                      150
+F,corr_conf_dist_scale_slope,                              40.000000
+F,corr_pol_peak_edge_dist_deg,                              1.500000
+F,corr_peak_edge_min_dist,                                 0.0400000
+F,corr_ref_max_dist_err,                                   0.0300000 # Distance error of reflector measurements
+F,corr_ref_max_ang_err_deg,                                 2.000000 # Angle error of reflector measurements
+F,corr_ref_single_max_ang_err_multiplier,                   1.000000 # Multiplier for angle error of reflector measurements when only one is seen, recommended value at least 2
+F,corr_ref_pos_ini_max_ang_err_deg,                         2.000000
+F,corr_ref_weight,                                          2.000000
+F,corr_ref_weight_single,                                   1.500000
+F,corr_xyh_resolution,                                     0.0050000 # min 0.000100, max 10.000000
+I,corr_xyh_table_radius,                                           7
+F,corr_xyh_blur_radius,                                     1.500000
+F,corr_xyh_pol_blur_radius,                                 1.000000
+I,corr_xyh_pol_interp,                                             1 # min 0, max 1
+I,corr_xyh_max_n_groups,                                         100
+I,corr_xyh_div_search_start_interval,                              1
+F,corr_xyh_max_range,                                       0.260000 # Roughly correlates with how high heading errors can be corrected (range / distance = herr)
+F,corr_xyh_group_resolution,                               0.0200000 # min 0.000100, max 10.000000
+I,actuator_type,                                                   2 # 0 = disabled, 1 = manual control, display IO, 2 = reference value controlled actuator, 3 = io controlled actuator (low/high pos only); min 0, max 3
+I,actuator_outer_tolerance_mm,                                     5 # Actuator control is started when measured value differs more than tolerance from target value; min 0, max 100
+I,actuator_min_val,                                               10
+I,actuator_load_min_val,                                         200
+I,actuator_max_val,                                              800
+I,actuator_load_aboard_offset_mm,                                  0
+I,actuator_timer_s,                                               40
+F,pc_max_end_dist,                                          0.200000
+F,pc_same_point_dist,                                     0.00200000
+F,pc_step_length,                                         0.01000000 # Distance between trajectory points (m) when filtering trajectory; min 0.000100, max 0.500000
+I,periodic_st_interv,                                            100
+I,fleet_control_recv_timeout_ms,                                5000
+I,fleet_control_abort_on_disconnect,                               0 # Abort drive, if connection lost to fleet control; min 0, max 1
+F,blink_ahead_min_dist,                                     1.000000 # defines the minimum distance ahead of the curve where the blinker is activated
+F,blink_curvature,                                          0.500000 # defines how sharp curves shall activate the blinking, curvature=1/radius
+F,max_c_change_limit,                                       1.000000
+I,speed_timer_s,                                                  10 # Set error on two conditions: 1) If measured speed differs for the given time from reference (by at least max_speed_diff). 2) If AGV is not starting to move within the given time from reference increase (for motor controllers without internal PID)
+F,max_speed_diff,                                           0.100000 # Expected accuracy of the speed control. Error will be set if measured value differs from the reference for speed_timer_s amount of time
+F,max_prediction_dist,                                      0.300000
+F,manual_ctrl_gain,                                         0.200000 # Filter coefficient for the reference outputs in remote control; min 0.010000, max 1.000000
+I,remote_ctrl_watchdog_ms,                                      1000 # If remote data interval exceeds this time [ms] limit, then control is disabled; min 50, max 5000
+F,keyb_ctrl_max_speed,                                      0.100000 # Maximum speed with keyboard control
+I,go_to_stby_delay_msec,                                        4000
+I,extbatt_if_type,                                                 -1 # External battery interface type: -1 = disabled, 0 = MasterVolt, 1 = SL BMS, 2 = Jungheinrich, 3 = RoboteQ, 4 = Voltabox, 5 = Ethernet Supervisor (min ver 4), 6 = MEB battery, 7 = JLN; min -1, max 7
+I,extbatt_if_max_interval_ms,                                  10000 # Maximum update interval (ms)
+I,omni_steer_nbr,                                                  2 # Number of controlled (steering) wheels; min 0, max 6
+F,wheel_x[0],                                               0.662000 # Indexes according to customer wheel numbering
+F,wheel_x[1],                                              -0.662000
+F,wheel_x[2],                                               0.000000
+F,wheel_x[3],                                               0.000000
+F,wheel_x[4],                                               0.000000
+F,wheel_x[5],                                               0.000000
+F,wheel_y[0],                                               0.000000 # Indexes according to customer wheel numbering
+F,wheel_y[1],                                               0.000000
+F,wheel_y[2],                                               0.000000
+F,wheel_y[3],                                               0.000000
+F,wheel_y[4],                                               0.000000
+F,wheel_y[5],                                               0.000000
+F,wheel_y_off[0],                                           0.000000 # Wheel offset from turning axle (Y in veh coord when straight). Indexes as for wheel_y
+F,wheel_y_off[1],                                           0.000000
+F,wheel_y_off[2],                                           0.000000
+F,wheel_y_off[3],                                           0.000000
+F,wheel_y_off[4],                                           0.000000
+F,wheel_y_off[5],                                           0.000000
+I,mot_ctrl_omni_speed_inv_input[0],                                0 # Indexes according to customer wheel numbering
+I,mot_ctrl_omni_speed_inv_input[1],                                0
+I,mot_ctrl_omni_speed_inv_input[2],                                0
+I,mot_ctrl_omni_speed_inv_input[3],                                0
+I,mot_ctrl_omni_speed_inv_input[4],                                0
+I,mot_ctrl_omni_speed_inv_input[5],                                0
+I,mot_ctrl_omni_speed_inv_output[0],                               0 # Indexes according to customer wheel numbering
+I,mot_ctrl_omni_speed_inv_output[1],                               0
+I,mot_ctrl_omni_speed_inv_output[2],                               0
+I,mot_ctrl_omni_speed_inv_output[3],                               0
+I,mot_ctrl_omni_speed_inv_output[4],                               0
+I,mot_ctrl_omni_speed_inv_output[5],                               0
+F,mot_ctrl_omni_speed_p[0],                               150.000000 # Indexes according to customer wheel numbering
+F,mot_ctrl_omni_speed_p[1],                               150.000000
+F,mot_ctrl_omni_speed_p[2],                                 1.000000
+F,mot_ctrl_omni_speed_p[3],                                 1.000000
+F,mot_ctrl_omni_speed_p[4],                                 1.000000
+F,mot_ctrl_omni_speed_p[5],                                 1.000000
+F,mot_ctrl_omni_speed_d[0],                               500.000000 # Indexes according to customer wheel numbering
+F,mot_ctrl_omni_speed_d[1],                               500.000000
+F,mot_ctrl_omni_speed_d[2],                                 1.000000
+F,mot_ctrl_omni_speed_d[3],                                 1.000000
+F,mot_ctrl_omni_speed_d[4],                                 1.000000
+F,mot_ctrl_omni_speed_d[5],                                 1.000000
+I,mot_ctrl_omni_steer_inv_input[0],                                0 # Indexes according to customer wheel numbering
+I,mot_ctrl_omni_steer_inv_input[1],                                0
+I,mot_ctrl_omni_steer_inv_input[2],                                0
+I,mot_ctrl_omni_steer_inv_input[3],                                0
+I,mot_ctrl_omni_steer_inv_input[4],                                0
+I,mot_ctrl_omni_steer_inv_input[5],                                0
+I,mot_ctrl_omni_steer_inv_output[0],                               0 # Indexes according to customer wheel numbering
+I,mot_ctrl_omni_steer_inv_output[1],                               0
+I,mot_ctrl_omni_steer_inv_output[2],                               0
+I,mot_ctrl_omni_steer_inv_output[3],                               0
+I,mot_ctrl_omni_steer_inv_output[4],                               0
+I,mot_ctrl_omni_steer_inv_output[5],                               0
+F,mot_ctrl_omni_steer_p[0],                               600.000000 # Indexes according to customer wheel numbering
+F,mot_ctrl_omni_steer_p[1],                               600.000000
+F,mot_ctrl_omni_steer_p[2],                                 1.000000
+F,mot_ctrl_omni_steer_p[3],                                 1.000000
+F,mot_ctrl_omni_steer_p[4],                                 1.000000
+F,mot_ctrl_omni_steer_p[5],                                 1.000000
+F,mot_ctrl_omni_steer_d[0],                              1000.000000 # Indexes according to customer wheel numbering
+F,mot_ctrl_omni_steer_d[1],                              1000.000000
+F,mot_ctrl_omni_steer_d[2],                                 1.000000
+F,mot_ctrl_omni_steer_d[3],                                 1.000000
+F,mot_ctrl_omni_steer_d[4],                                 1.000000
+F,mot_ctrl_omni_steer_d[5],                                 1.000000
+F,mot_ctrl_omni_steer_i[0],                                20.000000 # Indexes according to customer wheel numbering
+F,mot_ctrl_omni_steer_i[1],                                20.000000
+F,mot_ctrl_omni_steer_i[2],                                 1.000000
+F,mot_ctrl_omni_steer_i[3],                                 1.000000
+F,mot_ctrl_omni_steer_i[4],                                 1.000000
+F,mot_ctrl_omni_steer_i[5],                                 1.000000
+I,mot_ctrl_omni_speed_control_used[0],                             1 # Wheels with speed control. Indexes according to customer wheel numbering
+I,mot_ctrl_omni_speed_control_used[1],                             1
+I,mot_ctrl_omni_speed_control_used[2],                             0
+I,mot_ctrl_omni_speed_control_used[3],                             0
+I,mot_ctrl_omni_speed_control_used[4],                             0
+I,mot_ctrl_omni_speed_control_used[5],                             0
+I,omni_deadrec_ref_axle[0],                                        1 # Only two wheels (preferably not collinear) should be selected for deadreckoning. Indexes according to customer wheel numbering
+I,omni_deadrec_ref_axle[1],                                        1
+I,omni_deadrec_ref_axle[2],                                        0
+I,omni_deadrec_ref_axle[3],                                        0
+I,omni_deadrec_ref_axle[4],                                        0
+I,omni_deadrec_ref_axle[5],                                        0
+I,maintain_omni_kinematics,                                        0 # 1 to keep a defined radius and omniHeading at all times if required in vehicle interface (causes excessive wheel turning); min 0, max 1
+F,omni_deadreck_calc_parallel_wheels_angle_deadband_deg,       10.000000
+I,veh_inte_receive_timeout_ms,                                  5000 # 0 to disable timeout; min 0, max 60000
+
+# Dynamic Mapping parameters
+I,dyn_map_lite_pos_corr,                                           0 # 0 to disable, 1 to enable position correction based on dynamic mapping lite; min 0, max 1
+I,dyn_map_lite_n_meas,                                             0 # 0 to disable, recommended value 50; min 0, max 100
+I,dyn_map_lite_only_on_auto,                                       0 # 1 to only update dynamic map when auto driving; min 0, max 1
+F,dyn_map_lite_resolution,                                 0.0200000
+F,dyn_map_lite_meas_interval_m,                            0.0500000 # Minimum distance between measurements added to map
+F,dyn_map_lite_meas_interval_deg,                          10.000000 # Minimum heading difference between measurements added to map
+F,dyn_map_lite_update_max_hcorr_deg,                        0.500000
+F,dyn_map_lite_update_max_xycorr,                          0.0400000
+F,dyn_map_lite_remove_cum_hcorr_deg,                        0.000000 # 0 to disable, 5.0 recommended
+F,dyn_map_lite_remove_cum_xycorr,                           0.000000 # 0 to disable, 0.1 recommended
+F,dyn_map_lite_update_min_env_conf,                         0.000000 # 0-100 %
+F,dyn_map_lite_pt_weight,                                 0.00200000 # min 0.000010, max 10.000000
+F,dyn_map_lite_wait_dist_after_pos_lost,                    0.200000 # Distance required to travel after position had been lost before starting to update dynamic map
+F,dyn_map_lite_conf_pt_dist,                               0.0500000
+F,dyn_map_lite_conf_min_base_conf,                         75.000000 # 0-100 %
+F,dyn_map_lite_conf_gain,                                  0.0500000
+F,dyn_map_lite_conf_max_drop_rate,                          0.700000
+I,dyn_map_lite_excluded_areas,                                     0 # 1 to use dynamic mapping excluded areas and not add points within them
+F,corr_conf_dyn_map_lite_max_dist,                         10.000000 # min 0.000100, max 500.000000
+F,corr_conf_decrease_alpha_min_speed,                       0.000000 # When limiting confidence decrease during 1D or dynamic map positioning, use this as minimum speed for decrease rate
+I,dyn_map_server_enable,                                           0 # min 0, max 1
+S,dyn_map_server_ip,                                                
+I,dyn_map_server_port,                                          6089
+I,dyn_map_server_update_interval_ms,                             500 # min 0, max 10000
+I,dyn_map_server_update_min_n_new_meas,                           20
+I,dyn_map_update_process_time_margin_ms,                           5 # Dynamic map updates are processed per localize cycle until time until next scanner update is less than this
+I,dyn_map_update_process_min_time_ms,                              2 # Dynamic map updates are processed at least until this time has passed
+F,dyn_map_pt_weight_resolution,                        0.00001000000
+F,dyn_map_server_max_disappeared_point_dist,                0.000000 # Maximum distance for detecting disappeared server points, 0 to disable
+F,dyn_map_server_disappeared_point_ang_margin_deg,          2.000000 # For a point to be detected as disappeared, all scanner beams within +- this value need to pass through the point
+F,dyn_map_server_disappeared_point_dist_margin,             0.100000 # For a scanner beam to be defined as having passed through a point, the beam has to travel further than this distance away from the point
+I,dyn_map_server_disappeared_point_min_n_seen_through,              20 # Number of laser scans required to have seen through a point for the point to be marked as disappeared
+
+# Precision Positioning parameters
+I,precision_positioning_enable,                                    0 # 0 to disable precision positioning areas, 1 to enable; min 0, max 1
+I,precision_positioning_in_pos_init_enabled,                       0 # 0 to disable precision positioning areas when initializing position, 1 to enable; min 0, max 1
+F,precision_pos_corr_blur_radius,                           2.500000
+F,precision_map_max_dist_m,                                 0.200000
+F,precision_map_max_hdiff_deg,                             30.000000
+F,precision_min_point_dist,                                0.0200000
+I,precision_reflectors_only,                                       0 # 1 to only use reflectors within precision positioning areas; min 0, max 1
+F,precision_ref_conf_multiplier,                            2.000000
+F,precision_ref_max_dist_err,                               0.200000
+F,precision_ref_max_ang_err_deg,                            2.000000
+F,corr_conf_precision_max_dist,                             5.000000 # min 0.000100, max 500.000000
+F,precision_large_xy,                                     0.01000000
+F,precision_large_h,                                        0.100000
+F,precision_xy_corr_large,                                0.00100000
+F,precision_xy_corr_small,                               0.000300000
+F,precision_h_corr_large,                                  0.0500000
+F,precision_h_corr_small,                                 0.01000000

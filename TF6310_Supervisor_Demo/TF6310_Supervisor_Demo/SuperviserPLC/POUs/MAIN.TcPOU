@@ -4,11 +4,11 @@
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
 	Position_control_system : FB_Position_control_system := (RemoteHost := '127.0.0.1', RemotePort := 2000);
-	
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[
-Position_control_system(Execute := TRUE);]]></ST>
+Position_control_system(Execute := TRUE);
+]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

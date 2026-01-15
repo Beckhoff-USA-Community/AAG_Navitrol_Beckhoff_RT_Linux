@@ -24,7 +24,7 @@ END_VAR
 VAR
 	State : (INIT_FBs,
 		CLOSE_OLD_SOCKETS,
-		CONNECT,
+		CONNECT_TO_Server,
 		CYCLIC_COMS,
 		CLOSE_CONNECTION);
 	CloseAll  : FB_SocketCloseAll;
@@ -37,11 +37,11 @@ VAR
 	Receive	  : FB_SocketReceive;
 
 	//Receive
-	ReceiveBuffer			: ARRAY[0..5000] OF UINT;
+	ReceiveBuffer			: U_Recived_bytes_from_Navitrol;
 	NumOf3102MsgRecived		: UDINT;
 	NumOf1126MsgRecived		: UDINT;
 	UnknowMsgRecivedCounter : UDINT;
-	UnknowMsg				: ARRAY[0..5000] OF UINT;
+	UnknowMsg				: U_Recived_bytes_from_Navitrol;
 
 	//Event logging
 	FirstScan  : BOOL := TRUE;
@@ -64,6 +64,9 @@ CASE State OF
 		Receive(bExecute := FALSE);
 		Close(bExecute := FALSE);
 		Busy := FALSE;
+		NumOf3102MsgRecived:=0;
+		NumOf1126MsgRecived:=0;
+		UnknowMsgRecivedCounter:=0;
 		IF Execute THEN
 			State := CLOSE_OLD_SOCKETS;
 			Busy  := TRUE;
@@ -75,10 +78,10 @@ CASE State OF
 	CLOSE_OLD_SOCKETS:
 		CloseAll(sSrvNetId := '', bExecute := TRUE, tTimeout := T#10S);
 		IF NOT CloseAll.bBusy THEN
-			State := CONNECT;
+			State := CONNECT_TO_Server;
 		END_IF
 
-	CONNECT:
+	CONNECT_TO_Server:
 		Connect(sSrvNetId	:= '',
 				sRemoteHost := RemoteHost,
 				nRemotePort := RemotePort,
@@ -89,7 +92,8 @@ CASE State OF
 			State := CYCLIC_COMS;
 			VerboseMsg.ipArguments.Clear().AddString('Connected to server:').AddString(RemoteHost).AddUDInt(RemotePort).AddString('Local port').AddUDInt(Connect.hSocket.localAddr.nPort);
 			VerboseMsg.Send();
-		ELSIF Error THEN
+		ELSIF Connect.bError THEN
+			Error := TRUE;
 			State := INIT_FBs;
 			ErrorMsg.ipArguments.Clear().AddString('Failed to connect to server:').AddString(RemoteHost).AddUDInt(RemotePort).AddString(', Error:').AddUDInt(Connect.nErrId);
 			ErrorMsg.Send();
@@ -98,10 +102,11 @@ CASE State OF
 	CYCLIC_COMS:
 		Timer3002(IN := NOT Timer3002.Q, PT := CycleTime3002);
 		IF Timer3002.Q THEN
-			st3002_Supervisor_Status.Protocol_version:=4;
-			st3002_Supervisor_Status.Message_ID:=3002;
-			st3002_Supervisor_Status.Message_length:=SIZEOF(st3002_Supervisor_Status);			
+			st3002_Supervisor_Status.Protocol_version := 4;
+			st3002_Supervisor_Status.Message_ID		  := 3002;
+			st3002_Supervisor_Status.Message_length	  := SIZEOF(st3002_Supervisor_Status);
 		END_IF
+
 		Send3002(sSrvNetId := '',
 				 hSocket   := Connect.hSocket,
 				 cbLen	   := SIZEOF(st3002_Supervisor_Status),
@@ -119,10 +124,10 @@ CASE State OF
 
 		Timer1026(IN := NOT Timer1026.Q, PT := CycleTime1026);
 		IF Timer1026.Q THEN
-			st1026_Measurement_update_generic_omni_drive.Protocol_version:=4;
-			st1026_Measurement_update_generic_omni_drive.Message_ID:=1026;
-			st1026_Measurement_update_generic_omni_drive.Message_length:=SIZEOF(st1026_Measurement_update_generic_omni_drive);
-			st1026_Measurement_update_generic_omni_drive.Message_number := st1026_Measurement_update_generic_omni_drive.Message_number + 1;
+			st1026_Measurement_update_generic_omni_drive.Protocol_version := 4;
+			st1026_Measurement_update_generic_omni_drive.Message_ID		  := 1026;
+			st1026_Measurement_update_generic_omni_drive.Message_length	  := SIZEOF(st1026_Measurement_update_generic_omni_drive);
+			st1026_Measurement_update_generic_omni_drive.Message_number	  := st1026_Measurement_update_generic_omni_drive.Message_number + 1;
 		END_IF
 
 		Send1026(sSrvNetId := '',
@@ -149,7 +154,8 @@ CASE State OF
 
 		IF NOT Receive.bBusy THEN
 			IF Receive.nRecBytes <> 0 THEN
-				CASE ReceiveBuffer[1] OF //Check what message type is being recived - then copy it into the correct structure
+				
+				CASE ReceiveBuffer.Header.Message_ID OF //Check what message type is being recived - then copy it into the correct structure
 					1126:
 						NumOf1126MsgRecived := NumOf1126MsgRecived + 1;
 						MEMCPY(destAddr := ADR(st1126_Motor_control_omni_response), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st1126_Motor_control_omni_response));
@@ -161,8 +167,8 @@ CASE State OF
 				ELSE
 					UnknowMsgRecivedCounter := UnknowMsgRecivedCounter + 1;
 					MEMCPY(destAddr := ADR(UnknowMsg), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(UnknowMsg));
-					VerboseMsg.ipArguments.Clear().AddString('Unknow msg type recived with ID:').AddUInt(ReceiveBuffer[1]);
-					VerboseMsg.Send();
+					ErrorMsg.ipArguments.Clear().AddString('Unknow msg type recived with ID:').AddUInt(ReceiveBuffer.Header.Message_ID);
+					ErrorMsg.Send();
 				END_CASE
 			END_IF
 
