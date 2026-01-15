@@ -66,7 +66,7 @@ I,supervisor_eth_port,                                          2000 # Superviso
 I,supervisor_eth_server,                                           0 # Defines whether Supervisor is server or client, 0 - client, 1 - server; min 0, max 1
 I,supervisor_eth_endianness,                                       0 # Defines Supervisor data endianness, 0 - little endian, 1 - big endian; min 0, max 1
 I,supervisor_eth_enabled,                                          1 # Enables Supervisor interface; min 0, max 1
-I,fleet_control_type,                                              1 # 0 - No fleet control, 1 - Our own fleet control, 2 - External fleet control, 3 - VD(M)A fleet control; min 0, max 3
+I,fleet_control_type,                                              0 # 0 - No fleet control, 1 - Our own fleet control, 2 - External fleet control, 3 - VD(M)A fleet control; min 0, max 3
 
 # Route Driver parameters
 I,route_driver_enabled,                                            0 # 1 to enable route driver; min 0, max 1
@@ -316,10 +316,10 @@ I,speed_timer_s,                                                  10 # Set error
 F,max_speed_diff,                                           0.100000 # Expected accuracy of the speed control. Error will be set if measured value differs from the reference for speed_timer_s amount of time
 F,max_prediction_dist,                                      0.300000
 F,manual_ctrl_gain,                                         0.200000 # Filter coefficient for the reference outputs in remote control; min 0.010000, max 1.000000
-I,remote_ctrl_watchdog_ms,                                      1000 # If remote data interval exceeds this time [ms] limit, then control is disabled; min 50, max 5000
+I,remote_ctrl_watchdog_ms,                                      5000 # If remote data interval exceeds this time [ms] limit, then control is disabled; min 50, max 5000
 F,keyb_ctrl_max_speed,                                      0.100000 # Maximum speed with keyboard control
 I,go_to_stby_delay_msec,                                        4000
-I,extbatt_if_type,                                                 -1 # External battery interface type: -1 = disabled, 0 = MasterVolt, 1 = SL BMS, 2 = Jungheinrich, 3 = RoboteQ, 4 = Voltabox, 5 = Ethernet Supervisor (min ver 4), 6 = MEB battery, 7 = JLN; min -1, max 7
+I,extbatt_if_type,                                                 5 # External battery interface type: -1 = disabled, 0 = MasterVolt, 1 = SL BMS, 2 = Jungheinrich, 3 = RoboteQ, 4 = Voltabox, 5 = Ethernet Supervisor (min ver 4), 6 = MEB battery, 7 = JLN; min -1, max 7
 I,extbatt_if_max_interval_ms,                                  10000 # Maximum update interval (ms)
 I,omni_steer_nbr,                                                  2 # Number of controlled (steering) wheels; min 0, max 6
 F,wheel_x[0],                                               0.662000 # Indexes according to customer wheel numbering

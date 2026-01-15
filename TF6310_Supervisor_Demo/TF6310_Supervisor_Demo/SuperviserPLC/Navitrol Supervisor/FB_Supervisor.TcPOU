@@ -24,6 +24,7 @@ VAR_OUTPUT
 END_VAR
 
 VAR
+	DebugSize			:UDINT;
 	State : (INIT_FBs,
 		CLOSE_OLD_SOCKETS,
 		CONNECT_TO_Server,
@@ -62,6 +63,7 @@ END_VAR]]></Declaration>
 	FirstScan := FALSE;
 END_IF
 
+DebugSize := SIZEOF(st3102_Navitrol_status);
 CASE State OF
 	INIT_FBs: // Init State
 		CloseAll(bExecute := FALSE);
@@ -110,6 +112,10 @@ CASE State OF
 		Timer3002(IN := NOT Timer3002.Q, PT := CycleTime3002);
 		IF Timer3002.Q THEN
 			F_SetHeaderInfo(st3002_Supervisor_Status);
+			st3002_Supervisor_Status.Manual_section.Section_ID		:= 2;
+			st3002_Supervisor_Status.Manual_section.Section_length	:= SIZEOF(st3002_Supervisor_Status.Manual_section);
+			st3002_Supervisor_Status.Battery_section.Section_ID		:= 8;
+			st3002_Supervisor_Status.Battery_section.Section_length := SIZEOF(st3002_Supervisor_Status.Battery_section);
 		END_IF
 
 		Send3002(sSrvNetId := '',

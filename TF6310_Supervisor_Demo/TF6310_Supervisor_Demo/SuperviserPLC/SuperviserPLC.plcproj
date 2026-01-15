@@ -17,6 +17,9 @@
     <LibraryReferences>{eebbfa11-cc41-46be-a44f-20b9293615cd}</LibraryReferences>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Navitrol Supervisor\Common types\ST_SectionHeader.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Navitrol Supervisor\Common types\ST_SupervisorHeader.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -50,6 +53,9 @@
     <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\3102\Components\E_3102_State.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\3102\Components\Sections\1\ST_3102_1_General_section.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\3102\ST_3102_Navitrol_status.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -81,6 +87,36 @@
     <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\E_3002_Status.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\2\Components\E_3002_2_Enable_manual_control.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\2\Components\E_3002_2_Inactive_Active.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\2\ST_3002_2_Manual_section.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\6\Components\E_3002_6_Joystick1_control_mode.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\6\Components\E_3002_6_Joystick2_control_mode.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\6\Components\E_3002_6_Steer_type_selection.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\6\ST_3002_6_Remote_control_section.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\8\Components\ST_3002_8_Binary_data.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\8\Components\ST_3002_8_Error_status.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\8\ST_3002_8_Battery_section.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\ST_3002_Supervisor_Status.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -104,14 +140,22 @@
     <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response\1126\Components" />
     <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response\3102" />
     <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response\3102\Components" />
-    <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response\3102\Components\StatusSections" />
     <Folder Include="Navitrol Supervisor" />
+    <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response\3102\Components\Sections" />
+    <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response\3102\Components\Sections\1" />
     <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message" />
     <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\1001" />
     <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\1026" />
     <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\1026\Components" />
     <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\3002" />
     <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components" />
+    <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections" />
+    <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\2" />
+    <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\2\Components" />
+    <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\6" />
+    <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\6\Components" />
+    <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\8" />
+    <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\8\Components" />
     <Folder Include="POUs" />
   </ItemGroup>
   <ItemGroup>
