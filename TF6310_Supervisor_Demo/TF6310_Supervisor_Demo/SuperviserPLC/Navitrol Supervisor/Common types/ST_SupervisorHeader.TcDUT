@@ -9,6 +9,7 @@ TYPE ST_SupervisorHeader :
 		Message_ID		 : UINT;
 		Message_length	 : UDINT;
 	END_STRUCT
-END_TYPE]]></Declaration>
+END_TYPE
+//When sending a message from Supervisor to Navitrol, this is populated using F_SetHeaderInfo.]]></Declaration>
   </DUT>
 </TcPlcObject>

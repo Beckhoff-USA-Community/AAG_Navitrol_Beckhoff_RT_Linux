@@ -3,14 +3,14 @@
   <POU Name="FB_Supervisor" Id="{ba3b2abf-990a-4014-84c0-14af22135bdc}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_Supervisor
 VAR_INPUT
-	RemoteHost									 : T_IPv4Addr:='127.0.0.1';
-	RemotePort									 : UDINT:=2000;
-	CycleTime3002								 : TIME := T#100MS;
-	CycleTime1026								 : TIME := T#30MS;
+	RemoteHost									 : T_IPv4Addr := '127.0.0.1';
+	RemotePort									 : UDINT	  := 2000;
+	CycleTime3002								 : TIME		  := T#100MS;
+	CycleTime1026								 : TIME		  := T#30MS;
 	Execute										 : BOOL; //Connect to Navitrol, and establish comuncations. If false, the socket is closed.
 	st3002_Supervisor_Status					 : ST_3002_Supervisor_Status;
 	st1026_Measurement_update_generic_omni_drive : ST_1026_Measurement_update_generic_omni_drive;
-	Initialize_position							 : BOOL;//Rising edge trigger to send a Initialize position command
+	Initialize_position							 : BOOL; //Rising edge trigger to send a Initialize position command 
 	st1001_Initialize_position					 : ST_1001_Initialize_position := (X := 100.0, Y := 150.0);
 END_VAR
 
@@ -44,7 +44,7 @@ VAR
 	//Receive
 	ReceiveBuffer			: U_Recived_bytes_from_Navitrol;
 	NumOf1100MsgRecived		: UDINT;
-	NumOf1101MsgRecived		: UDINT;	
+	NumOf1101MsgRecived		: UDINT;
 	NumOf3102MsgRecived		: UDINT;
 	NumOf1126MsgRecived		: UDINT;
 	UnknowMsgRecivedCounter : UDINT;
@@ -109,9 +109,7 @@ CASE State OF
 	COMS_ACTIVE:
 		Timer3002(IN := NOT Timer3002.Q, PT := CycleTime3002);
 		IF Timer3002.Q THEN
-			st3002_Supervisor_Status.Protocol_version := 4;
-			st3002_Supervisor_Status.Message_ID		  := 3002;
-			st3002_Supervisor_Status.Message_length	  := SIZEOF(st3002_Supervisor_Status);
+			F_SetHeaderInfo(st3002_Supervisor_Status);
 		END_IF
 
 		Send3002(sSrvNetId := '',
@@ -131,10 +129,8 @@ CASE State OF
 
 		Timer1026(IN := NOT Timer1026.Q, PT := CycleTime1026);
 		IF Timer1026.Q THEN
-			st1026_Measurement_update_generic_omni_drive.Protocol_version := 4;
-			st1026_Measurement_update_generic_omni_drive.Message_ID		  := 1026;
-			st1026_Measurement_update_generic_omni_drive.Message_length	  := SIZEOF(st1026_Measurement_update_generic_omni_drive);
-			st1026_Measurement_update_generic_omni_drive.Message_number	  := st1026_Measurement_update_generic_omni_drive.Message_number + 1;
+			F_SetHeaderInfo(st1026_Measurement_update_generic_omni_drive);
+			st1026_Measurement_update_generic_omni_drive.Message_number := st1026_Measurement_update_generic_omni_drive.Message_number + 1;
 		END_IF
 
 		Send1026(sSrvNetId := '',
@@ -154,10 +150,8 @@ CASE State OF
 
 		rtInitialize_position(CLK := Initialize_position);
 		IF rtInitialize_position.Q THEN
-			st1001_Initialize_position.Protocol_version := 4;
-			st1001_Initialize_position.Message_ID		:= 1001;
-			st1001_Initialize_position.Message_length	:= SIZEOF(st1001_Initialize_position);
-			MEMSET(destAddr:=ADR(st1101_Position_initialized),fillByte:=0,n:=SIZEOF(st1101_Position_initialized));
+			F_SetHeaderInfo(st1001_Initialize_position);
+			MEMSET(destAddr := ADR(st1101_Position_initialized), fillByte := 0, n := SIZEOF(st1101_Position_initialized)); //Clear old results
 		END_IF
 
 		Send1001(sSrvNetId := '',
@@ -181,12 +175,18 @@ CASE State OF
 
 		IF NOT Receive.bBusy THEN
 			IF Receive.nRecBytes <> 0 THEN
+				IF Receive.nRecBytes = SIZEOF(ReceiveBuffer) THEN
+					ErrorMsg.ipArguments.Clear().AddString('Recive buffer is not large enough! Please increase the size of "Param_Supervisor_response.RecivedBytesBufferSize');
+					ErrorMsg.Send();
+				END_IF
+
 				CASE ReceiveBuffer.Header.Message_ID OF //Check what message type is being recived - then copy it into the correct structure
 					1100:
 						NumOf1100MsgRecived := NumOf1100MsgRecived + 1;
 						MEMCPY(destAddr := ADR(st1100_Position_initialization_started), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st1100_Position_initialization_started));
 						VerboseMsg.ipArguments.Clear().AddString('Position initialization started');
 						VerboseMsg.Send();
+
 					1101:
 						NumOf1101MsgRecived := NumOf1101MsgRecived + 1;
 						MEMCPY(destAddr := ADR(st1101_Position_initialized), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st1101_Position_initialized));

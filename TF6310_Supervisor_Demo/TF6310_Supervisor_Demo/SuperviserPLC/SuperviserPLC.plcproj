@@ -17,73 +17,77 @@
     <LibraryReferences>{eebbfa11-cc41-46be-a44f-20b9293615cd}</LibraryReferences>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DUTs\Navitrol to Supervisor response\1100\ST_1100_Position_initialization_started.TcDUT">
+    <Compile Include="Navitrol Supervisor\Common types\ST_SupervisorHeader.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Navitrol to Supervisor response\1101\Components\E_1101_Initialization_result.TcDUT">
+    <Compile Include="Navitrol Supervisor\FB_Supervisor.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Navitrol to Supervisor response\1101\ST_1101_Position_initialized.TcDUT">
+    <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\1100\ST_1100_Position_initialization_started.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Navitrol to Supervisor response\1126\Components\ST_1126_Omni_wheels_ref_struct.TcDUT">
+    <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\1101\Components\E_1101_Initialization_result.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Navitrol to Supervisor response\1126\Components\ST_1126_Supervisor_status_out.TcDUT">
+    <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\1101\ST_1101_Position_initialized.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Navitrol to Supervisor response\1126\ST_1126_Motor_control_omni_response.TcDUT">
+    <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\1126\Components\ST_1126_Omni_wheels_ref_struct.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Navitrol to Supervisor response\3102\Components\E_3102_Error_status.TcDUT">
+    <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\1126\Components\ST_1126_Supervisor_status_out.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Navitrol to Supervisor response\3102\Components\E_3102_Position_initialize_status.TcDUT">
+    <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\1126\ST_1126_Motor_control_omni_response.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Navitrol to Supervisor response\3102\Components\E_3102_State.TcDUT">
+    <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\3102\Components\E_3102_Error_status.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Navitrol to Supervisor response\3102\ST_3102_Navitrol_status.TcDUT">
+    <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\3102\Components\E_3102_Position_initialize_status.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Navitrol to Supervisor response\U_Recived_bytes_from_Navitrol.TcDUT">
+    <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\3102\Components\E_3102_State.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\ST_SupervisorHeader.TcDUT">
+    <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\3102\ST_3102_Navitrol_status.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Supervisor to Navitrol message\1001\ST_1001_Initialize_position.TcDUT">
+    <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\Param_Supervisor_response.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="Navitrol Supervisor\Navitrol to Supervisor response\U_Recived_bytes_from_Navitrol.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Supervisor to Navitrol message\1026\Components\E_1026_Set_drive_mode.TcDUT">
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\1001\ST_1001_Initialize_position.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Supervisor to Navitrol message\1026\Components\ST_1026_Omni_wheels_struct.TcDUT">
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\1026\Components\E_1026_Set_drive_mode.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Supervisor to Navitrol message\1026\Components\ST_1026_Supervisor_status_bits.TcDUT">
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\1026\Components\ST_1026_Omni_wheels_struct.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Supervisor to Navitrol message\1026\ST_1026_Measurement_update_generic_omni_drive.TcDUT">
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\1026\Components\ST_1026_Supervisor_status_bits.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Supervisor to Navitrol message\3002\E_3002_Set_ESTOP.TcDUT">
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\1026\ST_1026_Measurement_update_generic_omni_drive.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Supervisor to Navitrol message\3002\E_3002_Status.TcDUT">
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\E_3002_Set_ESTOP.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\Supervisor to Navitrol message\3002\ST_3002_Supervisor_Status.TcDUT">
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\E_3002_Status.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\ST_3002_Supervisor_Status.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\F_SetHeaderInfo.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="PlcTask.TcTTO">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\FB_Supervisor.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\F_SetHeaderInfo.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\MAIN.TcPOU">
@@ -91,22 +95,23 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="DUTs" />
-    <Folder Include="DUTs\Navitrol to Supervisor response" />
-    <Folder Include="DUTs\Navitrol to Supervisor response\1100" />
-    <Folder Include="DUTs\Navitrol to Supervisor response\1101" />
-    <Folder Include="DUTs\Navitrol to Supervisor response\1101\Components" />
-    <Folder Include="DUTs\Navitrol to Supervisor response\1126" />
-    <Folder Include="DUTs\Navitrol to Supervisor response\1126\Components" />
-    <Folder Include="DUTs\Navitrol to Supervisor response\3102" />
-    <Folder Include="DUTs\Navitrol to Supervisor response\3102\Components" />
-    <Folder Include="DUTs\Navitrol to Supervisor response\3102\Components\StatusSections" />
-    <Folder Include="DUTs\Supervisor to Navitrol message" />
-    <Folder Include="DUTs\Supervisor to Navitrol message\1001" />
-    <Folder Include="DUTs\Supervisor to Navitrol message\1026" />
-    <Folder Include="DUTs\Supervisor to Navitrol message\1026\Components" />
-    <Folder Include="DUTs\Supervisor to Navitrol message\3002" />
-    <Folder Include="VISUs" />
+    <Folder Include="Navitrol Supervisor\Common types" />
+    <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response" />
+    <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response\1100" />
+    <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response\1101" />
+    <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response\1101\Components" />
+    <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response\1126" />
+    <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response\1126\Components" />
+    <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response\3102" />
+    <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response\3102\Components" />
+    <Folder Include="Navitrol Supervisor\Navitrol to Supervisor response\3102\Components\StatusSections" />
+    <Folder Include="Navitrol Supervisor" />
+    <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message" />
+    <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\1001" />
+    <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\1026" />
+    <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\1026\Components" />
+    <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\3002" />
+    <Folder Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components" />
     <Folder Include="POUs" />
   </ItemGroup>
   <ItemGroup>
@@ -129,6 +134,10 @@
     <PlaceholderReference Include="Tc3_EventLogger">
       <DefaultResolution>Tc3_EventLogger, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc3_EventLogger</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_JsonXml">
+      <DefaultResolution>Tc3_JsonXml, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_JsonXml</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="Tc3_Module">
       <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>
