@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
+  <DUT Name="ST_SupervisorHeader" Id="{77264308-66a8-4f31-8b94-b1e1812d84ee}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '1'}
+TYPE ST_SupervisorHeader :
+	STRUCT
+		{attribute 'hide'}
+		Protocol_version : UINT := 4;
+		{attribute 'hide'}
+		Message_ID		 : UINT;
+		{attribute 'hide'}
+		Message_length	 : UDINT;
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

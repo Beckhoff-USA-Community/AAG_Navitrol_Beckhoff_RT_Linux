@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
+  <DUT Name="U_Debug_1126" Id="{ea052490-e9bf-4360-a4b4-e1a7a5b3bf72}">
+    <Declaration><![CDATA[TYPE U_Debug_1126 :
+UNION
+	Bytes	:ARRAY[0..499] OF BYTE;
+	st1126	:ST_1126_Motor_control_omni_response;
+END_UNION
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

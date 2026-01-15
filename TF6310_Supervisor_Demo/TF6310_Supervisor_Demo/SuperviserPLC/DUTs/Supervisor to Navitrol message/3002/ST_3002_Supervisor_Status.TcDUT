@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
+  <DUT Name="ST_3002_Supervisor_Status" Id="{7b244444-4475-46b5-8f8f-90546fc15de9}">
+    <Declaration><![CDATA[{attribute 'pack_mode' := '1'}
+TYPE ST_3002_Supervisor_Status EXTENDS ST_SupervisorHeader:
+	STRUCT
+
+		//ProtocolVersion	   : UINT		   := 4;
+
+		//MessageID		   : UINT		   := 3002;
+
+		//MessageLength	   : UDINT		   := 14; //14 + 2 * number of sections + length of sections
+		Status			   : E_3002_Status := E_3002_Status.Ok;
+		Set_Estop		   : E_3002_Set_ESTOP;
+		{attribute 'hide'}
+		Number_of_sections : UINT := 0;
+		//Section_IDs		   : ARRAY[0..0] OF UINT := [1];//List of sections to send in the response message 3102
+	END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

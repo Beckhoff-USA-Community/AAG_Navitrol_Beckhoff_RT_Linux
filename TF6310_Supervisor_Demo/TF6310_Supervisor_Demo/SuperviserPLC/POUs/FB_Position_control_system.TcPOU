@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
+  <POU Name="FB_Position_control_system" Id="{ba3b2abf-990a-4014-84c0-14af22135bdc}" SpecialFunc="None">
+    <Declaration><![CDATA[//This FB is responsiable for the Mandatory messages between Navitor and Supervisor (3002 - Supervisor status	3102 - Navitrol status), (1026 - Measurement update generic omni drive 1126 - Motor control omni response)
+FUNCTION_BLOCK FB_Position_control_system
+VAR_INPUT
+	RemoteHost									 : T_IPv4Addr;
+	RemotePort									 : UDINT;
+	CycleTime3002								 : TIME := T#100MS;
+	CycleTime1026								 : TIME := T#30MS;
+	Execute										 : BOOL;
+	st3002_Supervisor_Status					 : ST_3002_Supervisor_Status;
+	st1026_Measurement_update_generic_omni_drive : ST_1026_Measurement_update_generic_omni_drive;
+END_VAR
+
+VAR_OUTPUT
+	st3102_Navitrol_status			   : ST_3102_Navitrol_status;
+	st1126_Motor_control_omni_response : ST_1126_Motor_control_omni_response;
+	Busy							   : BOOL;
+	Error							   : BOOL;
+	ErrorID							   : UDINT;
+END_VAR
+
+VAR
+	State : (INIT_FBs,
+		CLOSE_OLD_SOCKETS,
+		CONNECT,
+		CYCLIC_COMS,
+		CLOSE_CONNECTION);
+	CloseAll  : FB_SocketCloseAll;
+	Connect	  : FB_SocketConnect;
+	Timer3002 : TON;
+	Send3002  : FB_SocketSend;
+	Timer1026 : TON;
+	Send1026  : FB_SocketSend;
+	Close	  : FB_SocketClose;
+	Receive	  : FB_SocketReceive;
+
+	//Receive
+	ReceiveBuffer			: ARRAY[0..5000] OF UINT;
+	NumOf3102MsgRecived		: UDINT;
+	NumOf1126MsgRecived		: UDINT;
+	UnknowMsgRecivedCounter : UDINT;
+	UnknowMsg				: ARRAY[0..5000] OF UINT;
+
+	//Event logging
+	FirstScan  : BOOL := TRUE;
+	ErrorMsg   : FB_TcMessage;
+	VerboseMsg : FB_TcMessage;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF FirstScan THEN
+	ErrorMsg.CreateEx(stEventEntry := TC_EVENTS.TcpIpComms.ErrorMsg, ipSourceInfo := 0);
+	VerboseMsg.CreateEx(stEventEntry := TC_EVENTS.TcpIpComms.VerboseMsg, ipSourceInfo := 0);
+	FirstScan := FALSE;
+END_IF
+
+CASE State OF
+	INIT_FBs: // Init State
+		CloseAll(bExecute := FALSE);
+		Connect(bExecute := FALSE);
+		Send3002(bExecute := FALSE);
+		Send1026(bExecute := FALSE);
+		Receive(bExecute := FALSE);
+		Close(bExecute := FALSE);
+		Busy := FALSE;
+		IF Execute THEN
+			State := CLOSE_OLD_SOCKETS;
+			Busy  := TRUE;
+			Error := FALSE;
+			VerboseMsg.ipArguments.Clear().AddString('Starting communications to:').AddString(RemoteHost).AddUDInt(RemotePort);
+			VerboseMsg.Send();
+		END_IF
+
+	CLOSE_OLD_SOCKETS:
+		CloseAll(sSrvNetId := '', bExecute := TRUE, tTimeout := T#10S);
+		IF NOT CloseAll.bBusy THEN
+			State := CONNECT;
+		END_IF
+
+	CONNECT:
+		Connect(sSrvNetId	:= '',
+				sRemoteHost := RemoteHost,
+				nRemotePort := RemotePort,
+				bExecute	:= TRUE,
+				tTimeout	:= T#4S);
+
+		IF Connect.hSocket.handle <> 0 AND NOT (Connect.bBusy) THEN
+			State := CYCLIC_COMS;
+			VerboseMsg.ipArguments.Clear().AddString('Connected to server:').AddString(RemoteHost).AddUDInt(RemotePort).AddString('Local port').AddUDInt(Connect.hSocket.localAddr.nPort);
+			VerboseMsg.Send();
+		ELSIF Error THEN
+			State := INIT_FBs;
+			ErrorMsg.ipArguments.Clear().AddString('Failed to connect to server:').AddString(RemoteHost).AddUDInt(RemotePort).AddString(', Error:').AddUDInt(Connect.nErrId);
+			ErrorMsg.Send();
+		END_IF
+
+	CYCLIC_COMS:
+		Timer3002(IN := NOT Timer3002.Q, PT := CycleTime3002);
+		IF Timer3002.Q THEN
+			st3002_Supervisor_Status.Protocol_version:=4;
+			st3002_Supervisor_Status.Message_ID:=3002;
+			st3002_Supervisor_Status.Message_length:=SIZEOF(st3002_Supervisor_Status);			
+		END_IF
+		Send3002(sSrvNetId := '',
+				 hSocket   := Connect.hSocket,
+				 cbLen	   := SIZEOF(st3002_Supervisor_Status),
+				 pSrc	   := ADR(st3002_Supervisor_Status),
+				 bExecute  := Timer3002.Q,
+				 tTimeout  := T#2S);
+
+		IF Send3002.bError THEN
+			ErrorMsg.ipArguments.Clear().AddString('Failed to send 3002 Error:').AddUDInt(Send3002.nErrId);
+			ErrorMsg.Send();
+			State	:= CLOSE_CONNECTION;
+			Error	:= TRUE;
+			ErrorID := Send3002.nErrId;
+		END_IF
+
+		Timer1026(IN := NOT Timer1026.Q, PT := CycleTime1026);
+		IF Timer1026.Q THEN
+			st1026_Measurement_update_generic_omni_drive.Protocol_version:=4;
+			st1026_Measurement_update_generic_omni_drive.Message_ID:=1026;
+			st1026_Measurement_update_generic_omni_drive.Message_length:=SIZEOF(st1026_Measurement_update_generic_omni_drive);
+			st1026_Measurement_update_generic_omni_drive.Message_number := st1026_Measurement_update_generic_omni_drive.Message_number + 1;
+		END_IF
+
+		Send1026(sSrvNetId := '',
+				 hSocket   := Connect.hSocket,
+				 cbLen	   := SIZEOF(st1026_Measurement_update_generic_omni_drive),
+				 pSrc	   := ADR(st1026_Measurement_update_generic_omni_drive),
+				 bExecute  := Timer1026.Q,
+				 tTimeout  := T#2S);
+
+		IF Send1026.bError THEN
+			ErrorMsg.ipArguments.Clear().AddString('Failed to send 1026 Error:').AddUDInt(Send1026.nErrId);
+			ErrorMsg.Send();
+			State	:= CLOSE_CONNECTION;
+			Error	:= TRUE;
+			ErrorID := Send1026.nErrId;
+		END_IF
+
+		Receive(sSrvNetId := '',
+				hSocket	  := Connect.hSocket,
+				cbLen	  := SIZEOF(ReceiveBuffer),
+				pDest	  := ADR(ReceiveBuffer),
+				bExecute  := TRUE,
+				tTimeout  := T#10S);
+
+		IF NOT Receive.bBusy THEN
+			IF Receive.nRecBytes <> 0 THEN
+				CASE ReceiveBuffer[1] OF //Check what message type is being recived - then copy it into the correct structure
+					1126:
+						NumOf1126MsgRecived := NumOf1126MsgRecived + 1;
+						MEMCPY(destAddr := ADR(st1126_Motor_control_omni_response), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st1126_Motor_control_omni_response));
+
+					3102:
+						NumOf3102MsgRecived := NumOf3102MsgRecived + 1;
+						MEMCPY(destAddr := ADR(st3102_Navitrol_status), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st3102_Navitrol_status));
+
+				ELSE
+					UnknowMsgRecivedCounter := UnknowMsgRecivedCounter + 1;
+					MEMCPY(destAddr := ADR(UnknowMsg), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(UnknowMsg));
+					VerboseMsg.ipArguments.Clear().AddString('Unknow msg type recived with ID:').AddUInt(ReceiveBuffer[1]);
+					VerboseMsg.Send();
+				END_CASE
+			END_IF
+
+			Receive(bExecute := FALSE);
+
+			//Clear recive buffer
+			MEMSET(destAddr := ADR(ReceiveBuffer), fillByte := 0, n := SIZEOF(ReceiveBuffer));
+		END_IF
+
+		IF Receive.bError THEN
+			ErrorMsg.ipArguments.Clear().AddString('Failed to Receive Error:').AddUDInt(Receive.nErrId);
+			ErrorMsg.Send();
+			State	:= CLOSE_CONNECTION;
+			Error	:= TRUE;
+			ErrorID := Receive.nErrId;
+		END_IF
+
+		IF NOT Execute THEN
+			VerboseMsg.ipArguments.Clear().AddString('Connection closed by user');
+			VerboseMsg.Send();
+			State := CLOSE_CONNECTION;
+		END_IF
+
+	CLOSE_CONNECTION:
+		Close( // Close connection
+			sSrvNetId := '',
+			hSocket	  := Connect.hSocket,
+			bExecute  := TRUE,
+			tTimeout  := T#4S);
+
+		IF NOT Close.bBusy THEN
+			Close(bExecute := FALSE);
+			State := INIT_FBs;
+		END_IF
+END_CASE]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

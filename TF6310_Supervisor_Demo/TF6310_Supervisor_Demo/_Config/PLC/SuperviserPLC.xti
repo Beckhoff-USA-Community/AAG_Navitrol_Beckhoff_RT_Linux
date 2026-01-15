@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.19" ClassName="CNestedPlcProjDef">
+<TcSmItem xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.20" ClassName="CNestedPlcProjDef">
 	<Project GUID="{AABEE924-615D-45C9-80D4-D6FC426B42A0}" Name="SuperviserPLC" PrjFilePath="..\..\SuperviserPLC\SuperviserPLC.plcproj" TmcFilePath="..\..\SuperviserPLC\SuperviserPLC.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-		<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{648D008A-E05C-30CD-169D-958AFBD3B08B}" TmcPath="SuperviserPLC\SuperviserPLC.tmc">
+		<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{75B617AD-9B5E-13D7-5D4B-CB9C60AA8864}" TmcPath="SuperviserPLC\SuperviserPLC.tmc">
 			<Name>SuperviserPLC Instance</Name>
 			<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 			<Contexts>
@@ -12,7 +12,7 @@
 						<OTCID>#x02010030</OTCID>
 					</ManualConfig>
 					<Priority>20</Priority>
-					<CycleTime>5000000</CycleTime>
+					<CycleTime>1000000</CycleTime>
 				</Context>
 			</Contexts>
 			<TaskPouOids>

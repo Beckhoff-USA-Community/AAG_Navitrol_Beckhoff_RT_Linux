@@ -8,7 +8,7 @@
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
     <Name>SuperviserPLC</Name>
-    <ProgramVersion>3.1.4026.19</ProgramVersion>
+    <ProgramVersion>3.1.4026.20</ProgramVersion>
     <Application>{bdb6bc8c-077a-4c5f-b593-07efb6729b52}</Application>
     <TypeSystem>{32b4ba95-ab5a-4b81-a305-194b9bed5bba}</TypeSystem>
     <Implicit_Task_Info>{ae7252d8-9599-4bf1-855d-98f285a19538}</Implicit_Task_Info>
@@ -17,68 +17,73 @@
     <LibraryReferences>{eebbfa11-cc41-46be-a44f-20b9293615cd}</LibraryReferences>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DUTs\AGV SupervisorMessages\StatusSections\DUT.TcDUT">
+    <Compile Include="DUTs\Navitrol to Supervisor response\1100\ST_1100_Position_initialization_started.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\StatusSections\ST_ActuatorSection.TcDUT">
+    <Compile Include="DUTs\Navitrol to Supervisor response\1101\ST_1101_Position_initialized.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\StatusSections\ST_BatterySections.TcDUT">
+    <Compile Include="DUTs\Navitrol to Supervisor response\1126\ST_1126_Motor_control_omni_response.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\StatusSections\ST_DriveCtrlSection.TcDUT">
+    <Compile Include="DUTs\Navitrol to Supervisor response\1126\ST_1126_Omni_wheels_ref_struct.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\StatusSections\ST_ErrorInfo.TcDUT">
+    <Compile Include="DUTs\Navitrol to Supervisor response\1126\ST_1126_Supervisor_status_out.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\StatusSections\ST_ErrorSection.TcDUT">
+    <Compile Include="DUTs\Navitrol to Supervisor response\1126\U_Debug_1126.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\StatusSections\ST_InputsSection.TcDUT">
+    <Compile Include="DUTs\Navitrol to Supervisor response\3102\E_3102_Error_status.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\StatusSections\ST_ManualSection.TcDUT">
+    <Compile Include="DUTs\Navitrol to Supervisor response\3102\E_3102_Position_initialize_status.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\StatusSections\ST_RemoteCtrlSection.TcDUT">
+    <Compile Include="DUTs\Navitrol to Supervisor response\3102\E_3102_State.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\StatusSections\ST_SafetyScannerSection.TcDUT">
+    <Compile Include="DUTs\Navitrol to Supervisor response\3102\ST_3102_Navitrol_status.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\StatusSections\ST_SectionBase.TcDUT">
+    <Compile Include="DUTs\Navitrol to Supervisor response\3102\U_Debug_ST_3102.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\StatusSections\ST_TrailerSection.TcDUT">
+    <Compile Include="DUTs\ST_SupervisorHeader.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\ST_MeasurementData.TcDUT">
+    <Compile Include="DUTs\Supervisor to Navitrol message\1001\ST_1001_Initialize_position.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\ST_MotorControlData.TcDUT">
+    <Compile Include="DUTs\Supervisor to Navitrol message\1026\E_1026_Set_drive_mode.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\ST_SupervisorHeader.TcDUT">
+    <Compile Include="DUTs\Supervisor to Navitrol message\1026\ST_1026_Measurement_update_generic_omni_drive.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\AGV SupervisorMessages\ST_SupervisorStatus.TcDUT">
+    <Compile Include="DUTs\Supervisor to Navitrol message\1026\ST_1026_Omni_wheels_struct.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DUTs\E_MessageIds.TcDUT">
+    <Compile Include="DUTs\Supervisor to Navitrol message\1026\ST_1026_Supervisor_status_bits.TcDUT">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="GVLs\TcpIpCommVars.TcGVL">
+    <Compile Include="DUTs\Supervisor to Navitrol message\3002\E_3002_Set_ESTOP.TcDUT">
       <SubType>Code</SubType>
-      <LinkAlways>true</LinkAlways>
+    </Compile>
+    <Compile Include="DUTs\Supervisor to Navitrol message\3002\E_3002_Status.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\Supervisor to Navitrol message\3002\ST_3002_Supervisor_Status.TcDUT">
+      <SubType>Code</SubType>
     </Compile>
     <Compile Include="PlcTask.TcTTO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\FB_TcpIpComms.TcPOU">
+    <Compile Include="POUs\FB_Initialize_position.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\FB_AGVSupervisor.TcPOU">
+    <Compile Include="POUs\FB_Position_control_system.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\MAIN.TcPOU">
@@ -87,9 +92,16 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="DUTs" />
-    <Folder Include="DUTs\AGV SupervisorMessages" />
-    <Folder Include="DUTs\AGV SupervisorMessages\StatusSections" />
-    <Folder Include="GVLs" />
+    <Folder Include="DUTs\Navitrol to Supervisor response" />
+    <Folder Include="DUTs\Navitrol to Supervisor response\1100" />
+    <Folder Include="DUTs\Navitrol to Supervisor response\1101" />
+    <Folder Include="DUTs\Navitrol to Supervisor response\1126" />
+    <Folder Include="DUTs\Navitrol to Supervisor response\3102" />
+    <Folder Include="DUTs\Navitrol to Supervisor response\3102\StatusSections" />
+    <Folder Include="DUTs\Supervisor to Navitrol message" />
+    <Folder Include="DUTs\Supervisor to Navitrol message\1001" />
+    <Folder Include="DUTs\Supervisor to Navitrol message\1026" />
+    <Folder Include="DUTs\Supervisor to Navitrol message\3002" />
     <Folder Include="VISUs" />
     <Folder Include="POUs" />
   </ItemGroup>
@@ -106,6 +118,14 @@
       <DefaultResolution>Tc2_TcpIp, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc2_TcpIp</Namespace>
     </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_Utilities">
+      <DefaultResolution>Tc2_Utilities, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_Utilities</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc3_EventLogger">
+      <DefaultResolution>Tc3_EventLogger, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc3_EventLogger</Namespace>
+    </PlaceholderReference>
     <PlaceholderReference Include="Tc3_Module">
       <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc3_Module</Namespace>
@@ -119,19 +139,67 @@
   <ProjectExtensions>
     <PlcProjectOptions>
       <XmlArchive>
-        <Data>
-          <o xml:space="preserve" t="OptionKey">
+  <Data>
+    <o xml:space="preserve" t="OptionKey">
       <v n="Name">"&lt;ProjectRoot&gt;"</v>
-      <d n="SubKeys" t="Hashtable" />
+      <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
+        <v>{192FAD59-8248-4824-A8DE-9177C94C195A}</v>
+        <o>
+          <v n="Name">"{192FAD59-8248-4824-A8DE-9177C94C195A}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{29BD8D0C-3586-4548-BB48-497B9A01693F}</v>
+        <o>
+          <v n="Name">"{29BD8D0C-3586-4548-BB48-497B9A01693F}"</v>
+          <d n="SubKeys" t="Hashtable" ckt="String" cvt="OptionKey">
+            <v>NamingConventions</v>
+            <o>
+              <v n="Name">"NamingConventions"</v>
+              <d n="SubKeys" t="Hashtable" />
+              <d n="Values" t="Hashtable" />
+            </o>
+            <v>Rules</v>
+            <o>
+              <v n="Name">"Rules"</v>
+              <d n="SubKeys" t="Hashtable" />
+              <d n="Values" t="Hashtable" />
+            </o>
+          </d>
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{40450F57-0AA3-4216-96F3-5444ECB29763}</v>
+        <o>
+          <v n="Name">"{40450F57-0AA3-4216-96F3-5444ECB29763}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
+        <v>{8A0FB252-96EB-4DCC-A5B4-B4804D05E2D6}</v>
+        <o>
+          <v n="Name">"{8A0FB252-96EB-4DCC-A5B4-B4804D05E2D6}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" ckt="String" cvt="Boolean">
+            <v>WriteLineIDs</v>
+            <v>True</v>
+          </d>
+        </o>
+        <v>{eeeeeeee-3909-4298-8022-501ac3238667}</v>
+        <o>
+          <v n="Name">"{eeeeeeee-3909-4298-8022-501ac3238667}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" />
+        </o>
+      </d>
       <d n="Values" t="Hashtable" />
     </o>
-        </Data>
-        <TypeList>
-          <Type n="Hashtable">System.Collections.Hashtable</Type>
-          <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
-          <Type n="String">System.String</Type>
-        </TypeList>
-      </XmlArchive>
+  </Data>
+  <TypeList>
+    <Type n="Boolean">System.Boolean</Type>
+    <Type n="Hashtable">System.Collections.Hashtable</Type>
+    <Type n="OptionKey">{54dd0eac-a6d8-46f2-8c27-2f43c7e49861}</Type>
+    <Type n="String">System.String</Type>
+  </TypeList>
+</XmlArchive>
     </PlcProjectOptions>
   </ProjectExtensions>
 </Project>
