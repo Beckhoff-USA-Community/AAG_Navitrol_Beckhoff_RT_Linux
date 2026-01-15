@@ -4,12 +4,6 @@
     <Declaration><![CDATA[{attribute 'pack_mode' := '1'}
 TYPE ST_3002_Supervisor_Status EXTENDS ST_SupervisorHeader:
 	STRUCT
-
-		//ProtocolVersion	   : UINT		   := 4;
-
-		//MessageID		   : UINT		   := 3002;
-
-		//MessageLength	   : UDINT		   := 14; //14 + 2 * number of sections + length of sections
 		Status			   : E_3002_Status := E_3002_Status.Ok;
 		Set_Estop		   : E_3002_Set_ESTOP;
 		{attribute 'hide'}
