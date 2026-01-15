@@ -4,9 +4,6 @@
     <Declaration><![CDATA[{attribute 'pack_mode' := '1'}
 TYPE ST_1126_Motor_control_omni_response EXTENDS ST_SupervisorHeader:
 	STRUCT
-		//Protocol_Version	   : UINT;
-		//Message_ID			   : UINT;
-		//Message_length		   : UDINT; //28 + N wheels * Omni wheels ref struct Message length in bytes including all data fields (including Protocol version and Message ID)
 		Message_number		   : UDINT;
 		Supervisor_status_out  : ST_1126_Supervisor_status_out;
 		Driving_vector_Angle   : REAL; //Reference driving vector angle relative to the vehicle frame. (+/-PI in radians)0-forwards along vehicle center line. Positive direction is CCW from vehicle center lin

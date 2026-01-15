@@ -8,14 +8,8 @@ TYPE ST_1101_Position_initialized EXTENDS ST_SupervisorHeader :
 		Y					  : REAL;  //	Y-map coordinate of the new position in meters
 		H					  : REAL;  //	Heading of the new position on the map in radians
 		Floor				  : UDINT; //		The floor of the new position
-		Initialization_result : UINT;  (*	0 - Failure
-		The position initialization can fail for example if
-			- A good position is not found within pos_ini_max_d..-parameters from the given pos init point
-			- A good position is not found within value of pos_init_max_wait_time-parameter
-			- The AGV is not stationary state, it is performing load or there are scanner related errors active.
-		1 - Success
-			- A good position was found near the given position initialization point and position was successfully initialized.*)
-		Position_confidence : UINT; //		Position confidence percentage (1 - 100%)Describes how well the laser measurements in the new position matches the seen environment.	
+		Initialization_result : E_1101_Initialization_result;
+		Position_confidence	  : UINT; //		Position confidence percentage (1 - 100%)Describes how well the laser measurements in the new position matches the seen environment.	
 	END_STRUCT
 END_TYPE]]></Declaration>
   </DUT>

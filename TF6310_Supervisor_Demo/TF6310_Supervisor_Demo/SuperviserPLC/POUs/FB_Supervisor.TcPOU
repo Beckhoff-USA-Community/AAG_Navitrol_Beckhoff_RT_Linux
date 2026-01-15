@@ -1,21 +1,23 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
-  <POU Name="FB_Position_control_system" Id="{ba3b2abf-990a-4014-84c0-14af22135bdc}" SpecialFunc="None">
-    <Declaration><![CDATA[//This FB is responsiable for the Mandatory messages between Navitor and Supervisor (3002 - Supervisor status	3102 - Navitrol status), (1026 - Measurement update generic omni drive 1126 - Motor control omni response)
-FUNCTION_BLOCK FB_Position_control_system
+  <POU Name="FB_Supervisor" Id="{ba3b2abf-990a-4014-84c0-14af22135bdc}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Supervisor
 VAR_INPUT
-	RemoteHost									 : T_IPv4Addr;
-	RemotePort									 : UDINT;
+	RemoteHost									 : T_IPv4Addr:='127.0.0.1';
+	RemotePort									 : UDINT:=2000;
 	CycleTime3002								 : TIME := T#100MS;
 	CycleTime1026								 : TIME := T#30MS;
-	Execute										 : BOOL;
+	Execute										 : BOOL; //Connect to Navitrol, and establish comuncations. If false, the socket is closed.
 	st3002_Supervisor_Status					 : ST_3002_Supervisor_Status;
 	st1026_Measurement_update_generic_omni_drive : ST_1026_Measurement_update_generic_omni_drive;
+	Initialize_position							 : BOOL;//Rising edge trigger to send a Initialize position command
+	st1001_Initialize_position					 : ST_1001_Initialize_position := (X := 100.0, Y := 150.0);
 END_VAR
 
 VAR_OUTPUT
 	st3102_Navitrol_status			   : ST_3102_Navitrol_status;
 	st1126_Motor_control_omni_response : ST_1126_Motor_control_omni_response;
+	st1101_Position_initialized		   : ST_1101_Position_initialized;
 	Busy							   : BOOL;
 	Error							   : BOOL;
 	ErrorID							   : UDINT;
@@ -25,19 +27,24 @@ VAR
 	State : (INIT_FBs,
 		CLOSE_OLD_SOCKETS,
 		CONNECT_TO_Server,
-		CYCLIC_COMS,
+		COMS_ACTIVE,
 		CLOSE_CONNECTION);
-	CloseAll  : FB_SocketCloseAll;
-	Connect	  : FB_SocketConnect;
-	Timer3002 : TON;
-	Send3002  : FB_SocketSend;
-	Timer1026 : TON;
-	Send1026  : FB_SocketSend;
-	Close	  : FB_SocketClose;
-	Receive	  : FB_SocketReceive;
+	CloseAll							   : FB_SocketCloseAll;
+	Connect								   : FB_SocketConnect;
+	Timer3002							   : TON;
+	Send3002							   : FB_SocketSend;
+	Timer1026							   : TON;
+	Send1026							   : FB_SocketSend;
+	Close								   : FB_SocketClose;
+	Receive								   : FB_SocketReceive;
+	rtInitialize_position				   : R_TRIG;
+	Send1001							   : FB_SocketSend;
+	st1100_Position_initialization_started : ST_1100_Position_initialization_started;
 
 	//Receive
 	ReceiveBuffer			: U_Recived_bytes_from_Navitrol;
+	NumOf1100MsgRecived		: UDINT;
+	NumOf1101MsgRecived		: UDINT;	
 	NumOf3102MsgRecived		: UDINT;
 	NumOf1126MsgRecived		: UDINT;
 	UnknowMsgRecivedCounter : UDINT;
@@ -63,10 +70,10 @@ CASE State OF
 		Send1026(bExecute := FALSE);
 		Receive(bExecute := FALSE);
 		Close(bExecute := FALSE);
-		Busy := FALSE;
-		NumOf3102MsgRecived:=0;
-		NumOf1126MsgRecived:=0;
-		UnknowMsgRecivedCounter:=0;
+		Busy					:= FALSE;
+		NumOf3102MsgRecived		:= 0;
+		NumOf1126MsgRecived		:= 0;
+		UnknowMsgRecivedCounter := 0;
 		IF Execute THEN
 			State := CLOSE_OLD_SOCKETS;
 			Busy  := TRUE;
@@ -89,7 +96,7 @@ CASE State OF
 				tTimeout	:= T#4S);
 
 		IF Connect.hSocket.handle <> 0 AND NOT (Connect.bBusy) THEN
-			State := CYCLIC_COMS;
+			State := COMS_ACTIVE;
 			VerboseMsg.ipArguments.Clear().AddString('Connected to server:').AddString(RemoteHost).AddUDInt(RemotePort).AddString('Local port').AddUDInt(Connect.hSocket.localAddr.nPort);
 			VerboseMsg.Send();
 		ELSIF Connect.bError THEN
@@ -99,7 +106,7 @@ CASE State OF
 			ErrorMsg.Send();
 		END_IF
 
-	CYCLIC_COMS:
+	COMS_ACTIVE:
 		Timer3002(IN := NOT Timer3002.Q, PT := CycleTime3002);
 		IF Timer3002.Q THEN
 			st3002_Supervisor_Status.Protocol_version := 4;
@@ -145,6 +152,26 @@ CASE State OF
 			ErrorID := Send1026.nErrId;
 		END_IF
 
+		rtInitialize_position(CLK := Initialize_position);
+		IF rtInitialize_position.Q THEN
+			st1001_Initialize_position.Protocol_version := 4;
+			st1001_Initialize_position.Message_ID		:= 1001;
+			st1001_Initialize_position.Message_length	:= SIZEOF(st1001_Initialize_position);
+			MEMSET(destAddr:=ADR(st1101_Position_initialized),fillByte:=0,n:=SIZEOF(st1101_Position_initialized));
+		END_IF
+
+		Send1001(sSrvNetId := '',
+				 hSocket   := Connect.hSocket,
+				 cbLen	   := SIZEOF(st1001_Initialize_position),
+				 pSrc	   := ADR(st1001_Initialize_position),
+				 bExecute  := rtInitialize_position.Q,
+				 tTimeout  := T#2S);
+
+		IF Send1001.bError THEN
+			ErrorMsg.ipArguments.Clear().AddString('Failed to send 1001 Error:').AddUDInt(Send1001.nErrId);
+			ErrorMsg.Send();
+		END_IF
+
 		Receive(sSrvNetId := '',
 				hSocket	  := Connect.hSocket,
 				cbLen	  := SIZEOF(ReceiveBuffer),
@@ -154,8 +181,18 @@ CASE State OF
 
 		IF NOT Receive.bBusy THEN
 			IF Receive.nRecBytes <> 0 THEN
-				
 				CASE ReceiveBuffer.Header.Message_ID OF //Check what message type is being recived - then copy it into the correct structure
+					1100:
+						NumOf1100MsgRecived := NumOf1100MsgRecived + 1;
+						MEMCPY(destAddr := ADR(st1100_Position_initialization_started), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st1100_Position_initialization_started));
+						VerboseMsg.ipArguments.Clear().AddString('Position initialization started');
+						VerboseMsg.Send();
+					1101:
+						NumOf1101MsgRecived := NumOf1101MsgRecived + 1;
+						MEMCPY(destAddr := ADR(st1101_Position_initialized), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st1101_Position_initialized));
+						VerboseMsg.ipArguments.Clear().AddString('Position initialization finished');
+						VerboseMsg.Send();
+
 					1126:
 						NumOf1126MsgRecived := NumOf1126MsgRecived + 1;
 						MEMCPY(destAddr := ADR(st1126_Motor_control_omni_response), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st1126_Motor_control_omni_response));

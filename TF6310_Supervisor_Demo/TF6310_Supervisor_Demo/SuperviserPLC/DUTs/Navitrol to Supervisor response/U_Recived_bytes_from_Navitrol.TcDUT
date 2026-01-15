@@ -1,7 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <DUT Name="U_Recived_bytes_from_Navitrol" Id="{6436758d-6468-4e03-9bd1-aa20a5bb5423}">
-    <Declaration><![CDATA[TYPE U_Recived_bytes_from_Navitrol : UNION
+    <Declaration><![CDATA[//Bytes bucket to buffer recived messages.
+//Head info is parsed before copied into the correct message structure.
+TYPE U_Recived_bytes_from_Navitrol : UNION
 		Header : ST_SupervisorHeader;
 		Bytes  : ARRAY[0..5000] OF UINT;
 	END_UNION
