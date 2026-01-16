@@ -8,7 +8,7 @@ TYPE ST_3002_Supervisor_Status EXTENDS ST_SupervisorHeader :
 		Set_Estop		   : E_3002_Set_ESTOP;
 		Number_of_sections : UINT				 := 1;	 //Number of sections requested in response message 3102 - Needs to be the same number as the array size Section_IDs. if 0 - then Section_IDs can be commented out
 		Section_IDs		   : ARRAY[0..0] OF UINT := [1]; //List of sections to send in the response message 3102
-		Manual_section	   : ST_3002_2_Manual_section;
+		Manual_section: ST_3002_2_Manual_section := (Enable_manual_control := E_3002_2_Enable_manual_control.Disable_control);		
 		Battery_section	   : ST_3002_8_Battery_section;
 	END_STRUCT
 END_TYPE]]></Declaration>

@@ -8,7 +8,7 @@ TYPE ST_1026_Measurement_update_generic_omni_drive EXTENDS ST_SupervisorHeader :
 		Set_drive_mode	  : E_1026_Set_drive_mode;
 		Supervisor_status : ST_1026_Supervisor_status_bits := (Brake_released := TRUE);
 		Number_of_wheels  : UINT						   := 2;
-		Omni_wheels		  : ARRAY[0..1] OF ST_1026_Omni_wheels_struct;
+	Omni_wheels: ARRAY [0..1] OF ST_1026_Omni_wheels_struct := [2((Steer_angle := 0.1))];		
 	END_STRUCT
 END_TYPE]]></Declaration>
   </DUT>
