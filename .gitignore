@@ -58,9 +58,6 @@ OpenFrameworks.gitignore
 
 TF6310_Supervisor_Demo/Scope Project/VSSettings/
 
-<<<<<<< HEAD
 # Claude Code settings (keep locally only)
 .claude/
-=======
->>>>>>> origin/main
 CLAUDE.md
