@@ -24,8 +24,7 @@ VAR_OUTPUT
 END_VAR
 
 VAR
-	DebugSize			:UDINT;
-	State : (INIT_FBs,
+	State	  : (INIT_FBs,
 		CLOSE_OLD_SOCKETS,
 		CONNECT_TO_Server,
 		COMS_ACTIVE,
@@ -63,7 +62,6 @@ END_VAR]]></Declaration>
 	FirstScan := FALSE;
 END_IF
 
-DebugSize := SIZEOF(st3102_Navitrol_status);
 CASE State OF
 	INIT_FBs: // Init State
 		CloseAll(bExecute := FALSE);
