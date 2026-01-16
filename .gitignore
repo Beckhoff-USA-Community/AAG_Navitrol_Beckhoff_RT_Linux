@@ -55,3 +55,5 @@ OpenFrameworks.gitignore
 
 *.~u
 .vs/
+
+TF6310_Supervisor_Demo/Scope Project/VSSettings/
