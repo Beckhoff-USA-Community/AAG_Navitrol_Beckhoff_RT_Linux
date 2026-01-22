@@ -117,6 +117,9 @@
     <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\8\ST_3002_8_Battery_section.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\Components\Sections\F_SetSectionHeaderInfo.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Navitrol Supervisor\Supervisor to Navitrol message\3002\ST_3002_Supervisor_Status.TcDUT">
       <SubType>Code</SubType>
     </Compile>

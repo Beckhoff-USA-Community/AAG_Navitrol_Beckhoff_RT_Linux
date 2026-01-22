@@ -14,7 +14,7 @@ TYPE ST_3102_Navitrol_status EXTENDS ST_SupervisorHeader :
 		Position_initialize_status : E_3102_Position_initialize_status;
 		Position_confidence		   : UINT; //Position confidence in percentage (1 - 100%)
 		Error_status			   : E_3102_Error_status;
-		//Additional sections can be added bellow - based on what is requested in the array "Section_IDs" in ST_3002_Supervisor_Status.
+		//Additional sections can be added bellow - based on what is requested in the array of ST_3002_Supervisor_Status.Section_IDs 
 		General_section			   : ST_3102_1_General_section;
 	END_STRUCT
 END_TYPE]]></Declaration>
