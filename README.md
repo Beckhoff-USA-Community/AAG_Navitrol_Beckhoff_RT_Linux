@@ -16,6 +16,35 @@ This example shows how to implement a Beckhoff PLC-based supervisor that communi
 - ✅ Receiving Navitrol status (Message 3102)
 - ✅ Message parsing using union buffers
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Repository Structure](#repository-structure)
+- [Complete Setup Guide](#complete-setup-guide)
+  - [Test Environment Specifications](#test-environment-specifications)
+  - [Beckhoff RT Linux Setup](#beckhoff-rt-linux-setup)
+  - [Navitrol Monitor Setup (Windows)](#navitrol-monitor-setup-windows)
+  - [Opening the TwinCAT Project](#opening-the-twincat-project)
+  - [Configuration](#configuration)
+  - [Building and Running](#building-and-running)
+  - [Debugging and Monitoring](#debugging-and-monitoring)
+- [Protocol Implementation](#protocol-implementation)
+  - [Message Flow](#message-flow)
+  - [Message Structure](#message-structure)
+  - [Implemented Messages](#implemented-messages)
+  - [Automatic Header Population](#automatic-header-population)
+- [Key Features](#key-features)
+  - [State Machine Architecture](#1-state-machine-architecture)
+  - [Union Buffer Pattern](#2-union-buffer-pattern)
+  - [Section-Based Status Messages](#3-section-based-status-messages)
+  - [Real-Time Visualization](#4-real-time-visualization)
+  - [Event Logging](#5-event-logging)
+- [Customization Guide](#customization-guide)
+  - [Adding New Message Types](#adding-new-message-types)
+  - [Adjusting Cycle Times](#adjusting-cycle-times)
+- [Protocol Compliance](#protocol-compliance)
+- [Additional Resources](#additional-resources)
+- [Support](#support)
 
 ## Repository Structure
 
@@ -26,86 +55,39 @@ This example shows how to implement a Beckhoff PLC-based supervisor that communi
        ├── TF6310_Supervisor_Demo.tsproj   # TwinCAT project
        ├── SuperviserPLC/                  # PLC implementation
        │   └── Navitrol Supervisor/
-       │       ├── FB_Supervisor.TcPOU     # Main supervisor logic
+       │       ├── FB_Supervisor.TcPOU     # Main supervisor logic with internal methods
        │       ├── Common types/           # Protocol headers
        │       ├── Supervisor to Navitrol message/  # Outgoing messages
        │       │   ├── F_SetHeaderInfo.TcPOU       # Auto header population
        │       │   ├── 1001/              # Initialize position
        │       │   ├── 1026/              # Measurement update (omni)
        │       │   └── 3002/              # Supervisor status
+       │       │           └── Components/Sections/
+       │       │               └── F_SetSectionHeaderInfo.TcPOU  # Auto section header
        │       └── Navitrol to Supervisor response/  # Incoming messages
        │           ├── 1100, 1101/        # Position init responses
        │           ├── 1126/              # Motor control commands
        │           └── 3102/              # Navitrol status
        └── Scope Project/                 # Real-time visualization
            └── YT Scope Project.tcscopex  # Scope configuration
+── Navitrol Param File/
+   └── params.txt                          # Example Navitrol parameters for testing
 
 ```
-
-## Quick Start
-
-### Prerequisites
-
-1. **Software:**
-   - TwinCAT XAE 3.1.4026.20+
-   - TwinCAT TF6310 (TCP/IP function) version 3.3.23+
-   - Beckhoff RT Linux® (version 13+)
-   - TwinCAT for Linux packages:
-     - `tc31-xar-um` (version 4026.21.107-1 or newer)
-     - `tf6310-tcp-ip` (version 2.0.22-1 or newer)
-
-2. **Documentation:**
-   - **IMPORTANT:** This example implements the **Ethernet Supervisor Interface Protocol Version 4**
-   - Refer to your Navitrol documentation **Section 11.1 "Ethernet Supervisor"** for complete protocol specifications
-
-3. **Hardware/Target:**
-   - Beckhoff IPC (tested on C6032-0080)
-   - Network connection to Navitrol IPC (default: 127.0.0.1:2000 for localhost testing)
-
-
-### Configuration
-
-The default configuration connects to Navitrol running on the same machine (localhost):
-
-```iecst
-// In MAIN.TcPOU
-Supervisor : FB_Supervisor := (
-    RemoteHost := '127.0.0.1',    // Navitrol IPC IP address
-    RemotePort := 2000,           // Default Navitrol supervisor port
-    CycleTime3002 := T#100MS,     // Supervisor status cycle
-    CycleTime1026 := T#30MS       // Measurement update cycle
-);
-```
-
-**To connect to a real Navitrol system**, modify `RemoteHost` in `MAIN.TcPOU` to match your Navitrol IPC's IP address.
-
-### Building and Running
-
-1. **Build the project:**
-   - Visual Studio → Build → Build Solution (Ctrl+Shift+B)
-   - Verify no compilation errors
-
-2. **Activate configuration:**
-   - TwinCAT menu → Activate Configuration
-   - System restarts in Run mode
-
-3. **Start the PLC:**
-   - TwinCAT menu → PLC → Start
-   - Or set `Supervisor(Execute := TRUE)` in MAIN if not already set
-
-4. **Monitor communication:**
-   - Check TwinCAT Event Logger for connection status
-   - Use Online View to monitor `FB_Supervisor` variables
-   - Open Scope Project to visualize motor control data
 
 ## Complete Setup Guide
 
-This section provides step-by-step instructions for setting up a complete test environment with Navitrol running on Beckhoff RT Linux and communicating with the TwinCAT supervisor.
+This guide provides step-by-step instructions for setting up a complete test environment with Navitrol running on Beckhoff RT Linux and communicating with the TwinCAT supervisor.
+
+**Important Notes:**
+- This example implements the **Ethernet Supervisor Interface Protocol Version 4**
+- Refer to your Navitrol documentation **Section 11.1 "Ethernet Supervisor"** for complete protocol specifications
 
 ### Test Environment Specifications
 
 **Hardware:**
 - Test fixture: Beckhoff C6032-0080
+  - *Note: Please work with your local Beckhoff team to understand what IPC makes sense for your application*
 
 **Beckhoff RT Linux:**
 - Version: 13
@@ -252,15 +234,58 @@ sudo systemctl stop nftables
 sudo systemctl disable nftables
 ```
 
+### Opening the TwinCAT Project
+
+1. **Install TwinCAT XAE** on your development PC
+   - Version 3.1.4026.20 or newer
+   - TwinCAT TF6310 (TCP/IP function) version 3.3.23 or newer
+
+2. **Open the solution:**
+   - Navigate to: `TF6310_Supervisor_Demo/TF6310_Supervisor_Demo.sln`
+   - The PLC project loads automatically from the solution
+
+### Configuration
+
+The default configuration connects to Navitrol running on the same machine (localhost):
+
+```iecst
+// In MAIN.TcPOU
+Supervisor : FB_Supervisor := (
+    RemoteHost := '127.0.0.1',    // Navitrol IPC IP address
+    RemotePort := 2000,           // Default Navitrol supervisor port
+    CycleTime3002 := T#100MS,     // Supervisor status cycle
+    CycleTime1026 := T#30MS       // Measurement update cycle
+);
+```
+
+### Building and Running
+
+1. **Build the project:**
+   - Visual Studio → Build → Build Solution (Ctrl+Shift+B)
+   - Verify no compilation errors
+
+2. **Activate configuration:**
+   - TwinCAT menu → Activate Configuration
+   - System restarts in Run mode
+
+3. **Start the PLC:**
+   - TwinCAT menu → PLC → Start
+
+4. **Monitor communication:**
+   - Check TwinCAT Event Logger for connection status
+   - Use Online View to monitor `FB_Supervisor` variables
+   - Open Scope Project to visualize motor control data
+
+
 ### Debugging and Monitoring
 
 **View Navitrol Logs:**
 
-```bash
-# Using Navitrol Monitor (GUI)
-# Connect to target and view logs in real-time
+- Using Navitrol Monitor (GUI) - Connect to target and view logs in real-time
+- Or connect to target via SSH and use Docker CLI:
 
-# Using Docker CLI
+```bash
+# View last 100 log entries
 docker logs navitrol_inside_docker --tail 100
 
 # Follow logs in real-time
@@ -277,6 +302,12 @@ docker ps
 docker inspect navitrol_inside_docker
 ```
 
+**Navitrol Web Interface Manual Control UI:**
+
+Open the TwinCAT measurement scope project and start recording data.
+
+Open your web browser and navigate to: `http://[ip address]:8080/`
+- Turn on Manual control, and use the mouse to drag around the virtual joystick 
 
 ## Protocol Implementation
 
@@ -289,7 +320,10 @@ docker inspect navitrol_inside_docker
 
 **Cyclic Operation:**
 - **3002** sent every 100ms (configurable via `FB_Supervisor.CycleTime3002`)
-- **1026** sent every 30ms (configurable via `FB_Supervisor.CycleTime1026`) - This shoudl match paramater control_interval_us in Params.txt. Please refer to "Measurement update message" in the glossry section of 11.1
+  - Maximum interval: 1 second
+- **1026** sent every 30ms (configurable via `FB_Supervisor.CycleTime1026`)
+  - Must match Navitrol parameter `control_interval_us` in params.txt
+  - Refer to "Measurement update message" in the glossary section of Navitrol documentation Section 11.1
 - Responses received asynchronously via continuous socket receive
 
 ### Message Structure
@@ -333,7 +367,17 @@ F_SetHeaderInfo(st3002_Supervisor_Status);
 //   - Message_length := SIZEOF(st3002_Supervisor_Status)
 ```
 
-This eliminates manual header management and reduces errors.
+The `F_SetSectionHeaderInfo()` function automatically populates section headers for message 3002:
+
+```iecst
+// Usage example for 3002 message sections:
+F_SetSectionHeaderInfo(st3002_2_Manual_section);
+// Automatically sets:
+//   - Section_ID := 2 (parsed from struct name "ST_3002_2_...")
+//   - Section_length := SIZEOF(st3002_2_Manual_section)
+```
+
+These functions eliminate manual header management and reduce errors.
 
 ## Key Features
 
@@ -350,7 +394,11 @@ INIT_FBs → CLOSE_OLD_SOCKETS → CONNECT_TO_Server → COMS_ACTIVE ⇄ CLOSE_C
 - **INIT_FBs**: Initialize function blocks, wait for Execute
 - **CLOSE_OLD_SOCKETS**: Clean up previous connections
 - **CONNECT_TO_Server**: Establish TCP connection (4s timeout)
-- **COMS_ACTIVE**: Main loop - send/receive messages
+- **COMS_ACTIVE**: Main communication loop, organized into internal methods:
+  - `SendMsg3002()`: Cyclic supervisor status transmission (timer-based)
+  - `SendMsg1026()`: Cyclic measurement updates (timer-based, increments Message_number)
+  - `SendMsg1001()`: Position initialization on rising edge trigger
+  - `ReciveAllMsgsAndParse()`: Continuous receive and message parsing (non-blocking)
 - **CLOSE_CONNECTION**: Graceful disconnect
 
 ### 2. Union Buffer Pattern
@@ -381,9 +429,11 @@ This pattern ensures the receive buffer is large enough for any message type whi
 ### 3. Section-Based Status Messages
 
 Large status messages (3002, 3102) use a sectioned architecture:
-- Each section has an ID and length
+- Each section has an `ST_SectionHeader` with `Section_ID` and `Section_length`
 - Sections can be requested/omitted as needed
-- Example: Battery section (ID 8), Manual control section (ID 2)
+- Example sections in 3002: Manual (ID 2), Remote control (ID 6), Battery (ID 8)
+- Section naming convention: `ST_3002_<SectionID>_<Description>_section`
+- Use `F_SetSectionHeaderInfo()` to automatically populate section headers
 
 ### 4. Real-Time Visualization
 
@@ -396,8 +446,9 @@ The included Scope Project monitors motor control commands in real-time:
 ### 5. Event Logging
 
 Built-in diagnostic logging via TwinCAT events:
-- **ErrorMsg**: Connection failures, socket errors, unknown messages
+- **ErrorMsg**: Connection failures, socket errors, receive buffer overflow
 - **VerboseMsg**: Successful connections, position init events
+- **WarnMsg**: Unknown messages received (with message ID and hex dump)
 
 View logs in TwinCAT Event Logger.
 
@@ -425,14 +476,26 @@ Follow the established pattern to add new Navitrol messages:
 
 3. **For outgoing messages:**
    - Call `F_SetHeaderInfo(message)` before sending
-   - Add send logic in `FB_Supervisor` COMS_ACTIVE state
+   - Add send logic in `FB_Supervisor` COMS_ACTIVE state (or create new internal METHOD following the pattern of `SendMsg3002()`, `SendMsg1026()`, `SendMsg1001()`)
    - Create timer if cyclic, or event trigger if on-demand
 
 4. **For incoming messages:**
-   - Add CASE handler in receive logic (around line 189 in FB_Supervisor)
+   - Add CASE handler in `ReciveAllMsgsAndParse()` METHOD in FB_Supervisor
    - Add output variable to FB_Supervisor for storing the received message
    - Use `MEMCPY` to copy from `ReceiveBuffer` union to the typed output variable
-   - Note: The union buffer is just a byte array - you don't add message types to it
+   - Note: The union buffer is just a byte array with header overlay - you don't add message types to it
+
+   Example pattern:
+   ```iecst
+   // In ReciveAllMsgsAndParse() method:
+   CASE ReceiveBuffer.Header.Message_ID OF
+       // ... existing cases ...
+       2050:
+           NumOf2050MsgRecived := NumOf2050MsgRecived + 1;
+           MEMCPY(destAddr := ADR(st2050_New_Message),
+                  srcAddr := ADR(ReceiveBuffer),
+                  n := SIZEOF(st2050_New_Message));
+   ```
 
 ### Adjusting Cycle Times
 
@@ -445,7 +508,7 @@ Supervisor : FB_Supervisor := (
 );
 ```
 
-**Important:** Measurement update interval must match Navitrol's `control_interval_us` parameter (default: 30ms ±20% tolerance). Please refere to Navitrol documentation Section 11.1 "Ethernet Supervisor" - Glossory - Measurement update message.
+**Important:** Measurement update interval must match Navitrol's `control_interval_us` parameter (default: 30ms ±20% tolerance). Please refer to Navitrol documentation Section 11.1 "Ethernet Supervisor" - Glossary - Measurement update message.
 
 
 ## Protocol Compliance
@@ -467,19 +530,11 @@ Refer to your Navitrol documentation package for:
 - [Beckhoff Information System](https://infosys.beckhoff.com/)
 - [TF6310 TCP/IP function documentation](https://infosys.beckhoff.com/content/1033/tf6310_tc3_tcpip/index.html?id=9025637582166106076)
 
-
-### Example Files
-- `MAIN.TcPOU` - Entry point with configuration
-- `FB_Supervisor.TcPOU` - Main implementation (250+ lines)
-- `F_SetHeaderInfo.TcPOU` - Automatic header generator
-- `U_Recived_bytes_from_Navitrol.TcDUT` - Union receive buffer
-
-
-**Important Notes:**
+### Important Notes
 - The Navitrol Ethernet Supervisor Interface protocol is proprietary to Navitec Systems Oy
 - Contact Navitec Systems for licensing and commercial use of Navitrol
 
-**Disclaimer:**
+### Disclaimer
 
 All sample code provided by Beckhoff Automation LLC are for illustrative purposes only and are provided "as is" and without any warranties, express or implied. Actual implementations in applications will vary significantly. Beckhoff Automation LLC shall have no liability for, and does not waive any rights in relation to, any code samples that it provides or the use of such code samples for any purpose.
 
@@ -489,4 +544,3 @@ For issues related to:
 - **This example code:** Open an issue in this repository
 - **Navitrol software:** Contact Navitec Systems support
 - **TwinCAT/Beckhoff:** Contact Beckhoff Automation support
----
