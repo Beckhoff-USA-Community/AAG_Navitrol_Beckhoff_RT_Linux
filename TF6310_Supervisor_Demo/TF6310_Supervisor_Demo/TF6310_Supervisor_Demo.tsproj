@@ -17,11 +17,11 @@
 				</Task>
 			</Tasks>
 			<TypeSystem>
-				<AdditionalTmcFile Name="MyTypes" File="MyTypes.tmc"/>
+				<AdditionalTmcFile Name="SupervisorEvents" File="SupervisorEvents.tmc"/>
 			</TypeSystem>
 		</System>
 		<Plc>
-			<Project File="SuperviserPLC.xti"/>
+			<Project File="SupervisorPLC.xti"/>
 		</Plc>
 	</Project>
 </TcSmProject>

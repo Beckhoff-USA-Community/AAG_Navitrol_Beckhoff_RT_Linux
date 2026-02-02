@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<TcModuleClass>
+	<DataTypes>
+		<DataType>
+			<Name GUID="{B06DAF43-1BB1-4DAB-A677-896B98D8C8BD}">TcpIpComms</Name>
+			<DisplayName TxtId=""><![CDATA[TcpIpComms]]></DisplayName>
+			<EventId>
+				<Name Id="1">ErrorMsg</Name>
+				<DisplayName TxtId=""><![CDATA[{0}]]></DisplayName>
+				<Severity>Error</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="2">VerboseMsg</Name>
+				<DisplayName TxtId=""><![CDATA[{0}]]></DisplayName>
+				<Severity>Verbose</Severity>
+			</EventId>
+			<EventId>
+				<Name Id="3">WarnMsg</Name>
+				<DisplayName TxtId=""><![CDATA[{0}]]></DisplayName>
+				<Severity>Warning</Severity>
+			</EventId>
+			<Hides>
+				<Hide GUID="{8C26DEA2-E402-4414-8410-F16B1817A49C}"/>
+				<Hide GUID="{DF4D9A15-47AA-4A88-BA82-66DE2E246A8A}"/>
+				<Hide GUID="{8D6ACA60-BED4-476C-891C-1F9D1C1CA7EB}"/>
+				<Hide GUID="{68BADBAB-F885-4A77-97A8-8864EFE03753}"/>
+				<Hide GUID="{A4253622-76CE-42CA-9CF0-17D34BF22841}"/>
+				<Hide GUID="{4BA26BFB-FA41-4DCF-BE0F-30FE542867AD}"/>
+				<Hide GUID="{A720677B-DFC4-43B0-87F1-BE44BAE1D78B}"/>
+				<Hide GUID="{37CF486D-7522-4CFC-814A-7F5DA6752E1F}"/>
+				<Hide GUID="{4A85380A-9111-4DC3-A973-A5C8982EB2A5}"/>
+				<Hide GUID="{1171AE40-EEAE-4F47-AF7C-7A5AB526C102}"/>
+			</Hides>
+		</DataType>
+	</DataTypes>
+</TcModuleClass>

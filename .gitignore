@@ -27,6 +27,8 @@ LineIDs.dbg.bak
 #   3. shared tmc files are used to exchange data types that should be persisted in the project
 *.tmc
 *.tmcRefac
+#custom event Classes
+!SupervisorEvents.tmc
 
 # TwinCAT3 project files
 *.tsproj.bak
