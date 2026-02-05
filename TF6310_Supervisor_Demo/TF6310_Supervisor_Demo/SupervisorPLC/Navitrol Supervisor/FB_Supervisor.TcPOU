@@ -9,18 +9,22 @@ VAR_INPUT
 	CycleTime1026								 : TIME		  := T#30MS;  //This needs to match the Navitrol parameter "control_interval_us"
 	Execute										 : BOOL;				  //Connect to Navitrol, and establish comuncations. If false, the socket is closed.
 	st3002_Supervisor_Status					 : ST_3002_Supervisor_Status;
-	st1026_Measurement_update_generic_omni_drive : ST_1026_Measurement_update_generic_omni_drive;
-	Initialize_position							 : BOOL; //Rising edge trigger to send a Initialize position command 
-	st1001_Initialize_position					 : ST_1001_Initialize_position := (X := 100.0, Y := 150.0);
+	st1016_Measurement_update_differential_drive : ST_1016_Measurement_update_differential_drive;
+
+	//st1026_Measurement_update_generic_omni_drive : ST_1026_Measurement_update_generic_omni_drive;
+	Initialize_position		   : BOOL; //Rising edge trigger to send a Initialize position command 
+	st1001_Initialize_position : ST_1001_Initialize_position := (X := 20.0, Y := 30.0,H:=0.785398,Level:=0);
 END_VAR
 
 VAR_OUTPUT
-	st3102_Navitrol_status			   : ST_3102_Navitrol_status;
-	st1126_Motor_control_omni_response : ST_1126_Motor_control_omni_response;
-	st1101_Position_initialized		   : ST_1101_Position_initialized;
-	Busy							   : BOOL;
-	Error							   : BOOL;
-	ErrorID							   : UDINT;
+	st3102_Navitrol_status : ST_3102_Navitrol_status;
+
+	//st1126_Motor_control_omni_response : ST_1126_Motor_control_omni_response;
+	st116_Motor_Control_Differential : ST_1116_Motor_Control_Differential;
+	st1101_Position_initialized		 : ST_1101_Position_initialized;
+	Busy							 : BOOL;
+	Error							 : BOOL;
+	ErrorID							 : UDINT;
 END_VAR
 
 VAR
@@ -101,7 +105,7 @@ CASE State OF
 
 	COMS_ACTIVE:
 		SendMsg3002();
-		SendMsg1026();
+		SengMeasurementUpdate();
 		SendMsg1001();
 		ReciveAllMsgsAndParse();
 		IF NOT Execute THEN
@@ -131,9 +135,11 @@ VAR_INST
 	st1100_Position_initialization_started : ST_1100_Position_initialization_started;
 	NumOf1101MsgRecived					   : UDINT;
 	NumOf3102MsgRecived					   : UDINT;
-	NumOf1126MsgRecived					   : UDINT;
-	UnknowMsgRecivedCounter				   : UDINT;
-	UnknowMsg							   : U_Recived_bytes_from_Navitrol;
+	NumOf1116MsgRecived					   : UDINT;
+
+	//NumOf1126MsgRecived					   : UDINT;
+	UnknowMsgRecivedCounter : UDINT;
+	UnknowMsg				: U_Recived_bytes_from_Navitrol;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[Receive(sSrvNetId := '',
@@ -167,10 +173,15 @@ IF NOT Receive.bBusy THEN
 				VerboseMsg.ipArguments.Clear().AddString('Position initialization finished');
 				VerboseMsg.Send();
 
-			1126:
-				NumOf1126MsgRecived := NumOf1126MsgRecived + 1;
-				MEMCPY(destAddr := ADR(st1126_Motor_control_omni_response), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st1126_Motor_control_omni_response));
+			1116:
+				NumOf1116MsgRecived := NumOf1116MsgRecived + 1;
+				MEMCPY(destAddr := ADR(st116_Motor_Control_Differential), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st116_Motor_Control_Differential));
 
+				//1126:
+
+				//	NumOf1126MsgRecived := NumOf1126MsgRecived + 1;
+
+			//	MEMCPY(destAddr := ADR(st1126_Motor_control_omni_response), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st1126_Motor_control_omni_response));
 			3102:
 				NumOf3102MsgRecived := NumOf3102MsgRecived + 1;
 				MEMCPY(destAddr := ADR(st3102_Navitrol_status), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st3102_Navitrol_status));
@@ -225,35 +236,6 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="SendMsg1026" Id="{1475c73e-cad4-4936-a87a-1f18b10c04d1}">
-      <Declaration><![CDATA[METHOD INTERNAL SendMsg1026 : HRESULT
-VAR_INST
-	Timer1026 : TON;
-	Send1026  : FB_SocketSend;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[Timer1026(IN := NOT Timer1026.Q, PT := CycleTime1026);
-IF Timer1026.Q THEN
-	F_SetHeaderInfo(st1026_Measurement_update_generic_omni_drive);
-	st1026_Measurement_update_generic_omni_drive.Message_number := st1026_Measurement_update_generic_omni_drive.Message_number + 1;
-END_IF
-
-Send1026(sSrvNetId := '',
-		 hSocket   := Connect.hSocket,
-		 cbLen	   := SIZEOF(st1026_Measurement_update_generic_omni_drive),
-		 pSrc	   := ADR(st1026_Measurement_update_generic_omni_drive),
-		 bExecute  := Timer1026.Q,
-		 tTimeout  := T#2S);
-
-IF Send1026.bError THEN
-	ErrorMsg.ipArguments.Clear().AddString('Failed to send 1026 Error:').AddUDInt(Send1026.nErrId);
-	ErrorMsg.Send();
-	State	:= CLOSE_CONNECTION;
-	Error	:= TRUE;
-	ErrorID := Send1026.nErrId;
-END_IF]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="SendMsg3002" Id="{d88adcbb-6363-4fbc-b430-0213ac9bf4b0}">
       <Declaration><![CDATA[METHOD INTERNAL SendMsg3002 : HRESULT
 VAR_INST
@@ -282,6 +264,40 @@ IF Send3002.bError THEN
 	State	:= CLOSE_CONNECTION;
 	Error	:= TRUE;
 	ErrorID := Send3002.nErrId;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="SengMeasurementUpdate" Id="{1475c73e-cad4-4936-a87a-1f18b10c04d1}">
+      <Declaration><![CDATA[METHOD INTERNAL SengMeasurementUpdate : HRESULT
+VAR_INST
+	Timer1026 : TON;
+	Send1026  : FB_SocketSend;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[Timer1026(IN := NOT Timer1026.Q, PT := CycleTime1026);
+IF Timer1026.Q THEN
+	//F_SetHeaderInfo(st1026_Measurement_update_generic_omni_drive);
+	//st1026_Measurement_update_generic_omni_drive.Message_number := st1026_Measurement_update_generic_omni_drive.Message_number + 1;
+	F_SetHeaderInfo(st1016_Measurement_update_differential_drive);
+	st1016_Measurement_update_differential_drive.Message_number := st1016_Measurement_update_differential_drive.Message_number + 1;
+END_IF
+
+Send1026(sSrvNetId := '',
+		 hSocket   := Connect.hSocket,
+		 cbLen	   := SIZEOF(st1016_Measurement_update_differential_drive),
+		 pSrc	   := ADR(st1016_Measurement_update_differential_drive),
+		 //cbLen	   := SIZEOF(st1026_Measurement_update_generic_omni_drive),
+
+		 //pSrc	   := ADR(st1026_Measurement_update_generic_omni_drive),
+		 bExecute := Timer1026.Q,
+		 tTimeout := T#2S);
+
+IF Send1026.bError THEN
+	ErrorMsg.ipArguments.Clear().AddString('Failed to send 1026 Error:').AddUDInt(Send1026.nErrId);
+	ErrorMsg.Send();
+	State	:= CLOSE_CONNECTION;
+	Error	:= TRUE;
+	ErrorID := Send1026.nErrId;
 END_IF]]></ST>
       </Implementation>
     </Method>
