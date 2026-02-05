@@ -71,6 +71,8 @@ F,mot_ctrl_max_wheel_v_fw,                                  2.200000 # Default m
 F,mot_ctrl_max_wheel_v_bw,                                  2.200000 # Default maximum drive wheel velocity when driving in reverse [m/s]
 F,mot_ctrl_max_wheel_acc,                                   1.000000 # Default maximum drive wheel acceleration [m/s^2]. The reference speed is ramped up based on this value.
 F,mot_ctrl_max_wheel_dec,                                   1.000000 # Default maximum drive wheel deceleration [m/s^2]. The reference speed is ramped down based on this value.
+F,mot_ctrl_left_dist_scale,                          -0.000001000000 # Conv # Convert encoder pulses of the left wheel to driven distance [m] (differential drive).
+F,mot_ctrl_right_dist_scale,                         -0.000001000000 # Conv # Convert encoder pulses of the left wheel to driven distance [m] (differential drive).
 
 #other
 F,blink_ahead_min_dist,                                     1.000000 # defines the minimum distance ahead of the curve where the blinker is activated
@@ -92,7 +94,10 @@ F,battery_percentage2,                                     60.000000
 F,battery_full_voltage,                                    29.100000
 
 # General position initialization parameters
-#I,pos_init_max_wait_time,                                      10000
-#F,pos_ini_min_conf,                                        70.000000
-#I,pos_ini_min_reflectors_seen,                                     0 # Minimum number of reflectors required to be seen when initializing position
-#F,pos_ini_max_reflector_pos_err,                           0.0500000 # Maximum position error of reflectors during position initialization
+I,pos_init_max_wait_time,                                      10000
+F,pos_ini_min_conf,                                        70.000000
+I,pos_ini_min_reflectors_seen,                                     0 # Minimum number of reflectors required to be seen when initializing position
+F,pos_ini_max_reflector_pos_err,                           0.0500000 # Maximum position error of reflectors during position initialization
+
+
+

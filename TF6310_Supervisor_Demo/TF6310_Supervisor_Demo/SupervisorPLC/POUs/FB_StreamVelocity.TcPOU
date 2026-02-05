@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
+  <POU Name="FB_StreamVelocity" Id="{2ee9a74e-10f7-4f88-9d18-0443fa970348}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_StreamVelocity
+VAR_INPUT
+	Axis		   : REFERENCE TO AXIS_REF;
+	Enable		   : BOOL;
+	TargetVelocity : LREAL; // Desired velocity setpoint (signed)
+	Acceleration   : LREAL := 0;
+	Deceleration   : LREAL := 0;
+	Jerk		   : LREAL := 0;
+END_VAR
+
+VAR_OUTPUT
+	Active		   : BOOL;
+	Error		   : BOOL;
+	ErrorID		   : UDINT;
+	ActualVelocity : LREAL;
+	Stopped		   : BOOL;
+END_VAR
+
+VAR
+	fbMoveVel1		   : MC_MoveVelocity;
+	fbMoveVel2		   : MC_MoveVelocity;
+	fbStop			   : MC_Stop;
+	bToggle			   : BOOL  := FALSE;
+	rLastVelocity	   : LREAL := 0.0;
+	bFirstCycle		   : BOOL  := TRUE;
+	rVelocityTolerance : LREAL := 0.1; // Threshold for issuing new command
+	rAbsVelocity	   : LREAL;
+	eDirection		   : MC_Direction;
+	bStopActive		   : BOOL := FALSE;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// Determine if we need to issue a new velocity command
+IF Enable THEN
+	// Check if we should stop (TargetVelocity = 0)
+	IF ABS(TargetVelocity) < rVelocityTolerance THEN
+		// Issue stop command if not already stopping
+		IF NOT bStopActive THEN
+			bStopActive	  := TRUE;
+			rLastVelocity := 0.0;
+		END_IF
+
+		// Execute stop with aborting buffer mode
+		fbStop(Axis			:= Axis,
+			   Execute		:= TRUE,
+			   Deceleration := Deceleration,
+			   Jerk			:= Jerk);
+
+		// Reset velocity FBs
+		fbMoveVel1(Axis := Axis, Execute := FALSE);
+		fbMoveVel2(Axis := Axis, Execute := FALSE);
+		Stopped := fbStop.Done;
+		Active	:= fbStop.Busy;
+		Error	:= fbStop.Error;
+		ErrorID := fbStop.ErrorID;
+	ELSE
+		// We have a non-zero target velocity
+		bStopActive := FALSE;
+
+		// Reset stop FB
+		fbStop(Axis := Axis, Execute := FALSE);
+
+		// Calculate absolute velocity and direction
+		rAbsVelocity := ABS(TargetVelocity);
+		IF TargetVelocity >= 0.0 THEN
+			eDirection := MC_Positive_Direction;
+		ELSE
+			eDirection := MC_Negative_Direction;
+		END_IF
+
+		// Check if velocity setpoint has changed significantly
+		IF ABS(TargetVelocity - rLastVelocity) > rVelocityTolerance OR bFirstCycle THEN
+			// Toggle between FB instances to achieve buffer aborting
+			bToggle		  := NOT bToggle;
+			rLastVelocity := TargetVelocity;
+			bFirstCycle	  := FALSE;
+		END_IF
+
+		// Execute alternating MoveVelocity commands with BufferMode := MC_Aborting
+		fbMoveVel1(Axis			:= Axis,
+				   Execute		:= Enable AND bToggle,
+				   Velocity		:= rAbsVelocity,
+				   Acceleration := Acceleration,
+				   Deceleration := Deceleration,
+				   Jerk			:= Jerk,
+				   Direction	:= eDirection,
+				   BufferMode	:= MC_Aborting);
+
+		fbMoveVel2(Axis			:= Axis,
+				   Execute		:= Enable AND NOT bToggle,
+				   Velocity		:= rAbsVelocity,
+				   Acceleration := Acceleration,
+				   Deceleration := Deceleration,
+				   Jerk			:= Jerk,
+				   Direction	:= eDirection,
+				   BufferMode	:= MC_Aborting);
+
+		// Outputs
+		Active	:= fbMoveVel1.Active OR fbMoveVel2.Active;
+		Stopped := FALSE;
+		Error	:= fbMoveVel1.Error OR fbMoveVel2.Error;
+		ErrorID := SEL(fbMoveVel1.Error, fbMoveVel2.ErrorID, fbMoveVel1.ErrorID);
+	END_IF
+
+	ActualVelocity := Axis.NcToPlc.ActVelo;
+ELSE
+	// Reset when disabled
+	fbMoveVel1(Axis := Axis, Execute := FALSE);
+	fbMoveVel2(Axis := Axis, Execute := FALSE);
+	fbStop(Axis := Axis, Execute := FALSE);
+	bFirstCycle := TRUE;
+	bStopActive := FALSE;
+	Active		:= FALSE;
+	Stopped		:= FALSE;
+	Error		:= FALSE;
+	ErrorID		:= 0;
+END_IF]]></ST>
+    </Implementation>
+  </POU>
+</TcPlcObject>

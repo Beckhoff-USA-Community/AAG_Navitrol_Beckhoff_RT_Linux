@@ -13,18 +13,18 @@ VAR_INPUT
 
 	//st1026_Measurement_update_generic_omni_drive : ST_1026_Measurement_update_generic_omni_drive;
 	Initialize_position		   : BOOL; //Rising edge trigger to send a Initialize position command 
-	st1001_Initialize_position : ST_1001_Initialize_position := (X := 20.0, Y := 30.0,H:=0.785398,Level:=0);
+	st1001_Initialize_position : ST_1001_Initialize_position := (X := 20.0, Y := 30.0, H := 0.785398, Level := 0);
 END_VAR
 
 VAR_OUTPUT
 	st3102_Navitrol_status : ST_3102_Navitrol_status;
 
 	//st1126_Motor_control_omni_response : ST_1126_Motor_control_omni_response;
-	st116_Motor_Control_Differential : ST_1116_Motor_Control_Differential;
-	st1101_Position_initialized		 : ST_1101_Position_initialized;
-	Busy							 : BOOL;
-	Error							 : BOOL;
-	ErrorID							 : UDINT;
+	st1116_Motor_Control_Differential : ST_1116_Motor_Control_Differential;
+	st1101_Position_initialized		  : ST_1101_Position_initialized;
+	Busy							  : BOOL;
+	Error							  : BOOL;
+	ErrorID							  : UDINT;
 END_VAR
 
 VAR
@@ -175,7 +175,7 @@ IF NOT Receive.bBusy THEN
 
 			1116:
 				NumOf1116MsgRecived := NumOf1116MsgRecived + 1;
-				MEMCPY(destAddr := ADR(st116_Motor_Control_Differential), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st116_Motor_Control_Differential));
+				MEMCPY(destAddr := ADR(st1116_Motor_Control_Differential), srcAddr := ADR(ReceiveBuffer), n := SIZEOF(st1116_Motor_Control_Differential));
 
 				//1126:
 
