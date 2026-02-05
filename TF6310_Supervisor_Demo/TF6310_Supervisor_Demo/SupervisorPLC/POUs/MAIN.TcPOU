@@ -7,53 +7,34 @@ VAR
 	PowerRightWheel		 : MC_Power;
 	LeftWheel			 : AXIS_REF;
 	RightWheel			 : AXIS_REF;
-	NavitrolInControl	 : BOOL:=TRUE;
+	NavitrolInControl	 : BOOL := TRUE;
 	StreamVeloLeftWheel	 : FB_StreamVelocity;
 	StreamVeloRightWheel : FB_StreamVelocity;
 	Supervisor			 : FB_Supervisor := (RemoteHost := '127.0.0.1', RemotePort := 2000);
 END_VAR]]></Declaration>
     <Implementation>
-      <ST><![CDATA[Supervisor(Execute := TRUE);
+      <ST><![CDATA[Supervisor.st1016_Measurement_update_differential_drive.Odometry_left_wheel	 := TO_UDINT(LeftWheel.NcToPlc.ActPos * 10_000_000);
+Supervisor.st1016_Measurement_update_differential_drive.Odometry_Right_wheel := TO_UDINT(RightWheel.NcToPlc.ActPos * 10_000_000);
+Supervisor(Execute := TRUE);
+PowerLeftWheel(Axis			   := LeftWheel,
+			   Enable		   := TRUE,
+			   Enable_Positive := TRUE,
+			   Enable_Negative := TRUE,
+			   Override		   := 100.0);
 
-PowerLeftWheel(
-	Axis:=LeftWheel , 
-	Enable:=TRUE , 
-	Enable_Positive:=TRUE , 
-	Enable_Negative:=TRUE , 
-	Override:=100.0  );
-	
-PowerRightWheel(
-	Axis:=RightWheel , 
-	Enable:=TRUE , 
-	Enable_Positive:=TRUE , 
-	Enable_Negative:=TRUE , 
-	Override:=100.0  );	
-	
-	
-	
-Supervisor.st1016_Measurement_update_differential_drive.Odometry_left_wheel:=TO_UDINT(LeftWheel.NcToPlc.ActPos*1_000_000);
+PowerRightWheel(Axis			:= RightWheel,
+				Enable			:= TRUE,
+				Enable_Positive := TRUE,
+				Enable_Negative := TRUE,
+				Override		:= 100.0);
 
-Supervisor.st1016_Measurement_update_differential_drive.Odometry_Right_wheel:=TO_UDINT(RightWheel.NcToPlc.ActPos*1_000_000);
-	
+StreamVeloLeftWheel(Axis		   := LeftWheel,
+					Enable		   := NavitrolInControl,
+					TargetVelocity := Supervisor.st1116_Motor_Control_Differential.Speed_Left);
 
-StreamVeloLeftWheel(
-	Axis:=LeftWheel , 
-	Enable:=NavitrolInControl , 
-	TargetVelocity:=Supervisor.st1116_Motor_Control_Differential.Speed_Left*-1.0 , 
-	Active=> , 
-	Error=> , 
-	ErrorID=> );
-	
-	StreamVeloRightWheel(
-	Axis:=RightWheel , 
-	Enable:=NavitrolInControl , 
-	TargetVelocity:=Supervisor.st1116_Motor_Control_Differential.Speed_Right*-1.0 , 
-	Active=> , 
-	Error=> , 
-	ErrorID=> );
-
-
-]]></ST>
+StreamVeloRightWheel(Axis			:= RightWheel,
+					 Enable			:= NavitrolInControl,
+					 TargetVelocity := Supervisor.st1116_Motor_Control_Differential.Speed_Right);]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

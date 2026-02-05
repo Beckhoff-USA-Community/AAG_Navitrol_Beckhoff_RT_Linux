@@ -1465,11 +1465,12 @@ External Setpoint Generation:
 					<Name>LeftWheel</Name>
 					<AxisPara>
 						<General UnitName="m"/>
-						<Dynamic AccelerationMaximum="1" DecelerationMaximum="1" Acceleration="1.1" Deceleration="1.1" Jerk="1.1"/>
+						<Dynamic AccelerationMaximum="1" DecelerationMaximum="1" Acceleration="2222" Deceleration="2222" Jerk="224422000"/>
 						<Velo SlowManual="0.6" FastManual="1" Maximum="2.2"/>
 						<OtherSettings AllowMotionCmdToSlave="true"/>
 					</AxisPara>
 					<Encoder Name="Enc" EncType="1">
+						<EncPara ScaleFactorNumerator="1e-07" EncMode="3"/>
 						<Vars VarGrpType="1">
 							<Name>Inputs</Name>
 							<Var>
@@ -1622,11 +1623,12 @@ External Setpoint Generation:
 					<Name>RightWheel</Name>
 					<AxisPara>
 						<General UnitName="m"/>
-						<Dynamic AccelerationMaximum="1" DecelerationMaximum="1" Acceleration="1.1" Deceleration="1.1" Jerk="1.1"/>
+						<Dynamic AccelerationMaximum="1" DecelerationMaximum="1" Acceleration="2222" Deceleration="2222" Jerk="224422000"/>
 						<Velo SlowManual="0.6" FastManual="1" Maximum="2.2"/>
 						<OtherSettings AllowMotionCmdToSlave="true"/>
 					</AxisPara>
 					<Encoder Name="Enc" EncType="1">
+						<EncPara ScaleFactorNumerator="1e-07" EncMode="3"/>
 						<Vars VarGrpType="1">
 							<Name>Inputs</Name>
 							<Var>

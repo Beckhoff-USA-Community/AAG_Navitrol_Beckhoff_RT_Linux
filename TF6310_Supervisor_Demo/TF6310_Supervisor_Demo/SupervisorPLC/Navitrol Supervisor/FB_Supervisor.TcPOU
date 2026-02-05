@@ -5,15 +5,15 @@
 VAR_INPUT
 	RemoteHost									 : T_IPv4Addr := '127.0.0.1';
 	RemotePort									 : UDINT	  := 2000;	  //Needs to match Navitrol parameter "supervisor_eth_port"
-	CycleTime3002								 : TIME		  := T#100MS; //maximum interval 1 second
-	CycleTime1026								 : TIME		  := T#30MS;  //This needs to match the Navitrol parameter "control_interval_us"
+	CycleTime3002								 : TIME		  := T#500MS; //maximum interval 1 second
+	CycleTime1026								 : TIME		  := T#10MS;  //This needs to match the Navitrol parameter "control_interval_us"
 	Execute										 : BOOL;				  //Connect to Navitrol, and establish comuncations. If false, the socket is closed.
 	st3002_Supervisor_Status					 : ST_3002_Supervisor_Status;
 	st1016_Measurement_update_differential_drive : ST_1016_Measurement_update_differential_drive;
 
 	//st1026_Measurement_update_generic_omni_drive : ST_1026_Measurement_update_generic_omni_drive;
 	Initialize_position		   : BOOL; //Rising edge trigger to send a Initialize position command 
-	st1001_Initialize_position : ST_1001_Initialize_position := (X := 20.0, Y := 30.0, H := 0.785398, Level := 0);
+	st1001_Initialize_position : ST_1001_Initialize_position := (X := 21.23, Y := 36.95, H := 0, Level := 0);
 END_VAR
 
 VAR_OUTPUT
@@ -280,6 +280,7 @@ IF Timer1026.Q THEN
 	//st1026_Measurement_update_generic_omni_drive.Message_number := st1026_Measurement_update_generic_omni_drive.Message_number + 1;
 	F_SetHeaderInfo(st1016_Measurement_update_differential_drive);
 	st1016_Measurement_update_differential_drive.Message_number := st1016_Measurement_update_differential_drive.Message_number + 1;
+	st1016_Measurement_update_differential_drive.Timestamp		:= st1016_Measurement_update_differential_drive.Timestamp + TO_UDINT(CycleTime1026);
 END_IF
 
 Send1026(sSrvNetId := '',

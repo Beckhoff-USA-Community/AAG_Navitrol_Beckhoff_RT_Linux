@@ -3,39 +3,97 @@
   <POU Name="FB_StreamVelocity" Id="{2ee9a74e-10f7-4f88-9d18-0443fa970348}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_StreamVelocity
 VAR_INPUT
-	Axis		   : REFERENCE TO AXIS_REF;
-	Enable		   : BOOL;
-	TargetVelocity : LREAL; // Desired velocity setpoint (signed)
-	Acceleration   : LREAL := 0;
-	Deceleration   : LREAL := 0;
-	Jerk		   : LREAL := 0;
+	Axis			   : REFERENCE TO AXIS_REF;
+	Enable			   : BOOL;
+	TargetVelocity	   : LREAL; // Desired velocity setpoint (signed)
+	Acceleration	   : LREAL := 0;
+	Deceleration	   : LREAL := 0;
+	Jerk			   : LREAL := 0;
+	EnableSmoothing	   : BOOL  := TRUE;	   // Enable PT1 velocity smoothing
+	FilterTimeConstant : TIME  := T#100MS; // PT1 time constant (tT1) - adjust for smoothing strength
 END_VAR
 
 VAR_OUTPUT
-	Active		   : BOOL;
-	Error		   : BOOL;
-	ErrorID		   : UDINT;
-	ActualVelocity : LREAL;
-	Stopped		   : BOOL;
+	Active			 : BOOL;
+	Error			 : BOOL;
+	ErrorID			 : UDINT;
+	ActualVelocity	 : LREAL;
+	Stopped			 : BOOL;
+	WorkingVelocity  : LREAL;			  // The actual velocity setpoint being fed to NC (smoothed or raw)
+	FilterError		 : BOOL;			  // PT1 filter error
+	FilterErrorID	 : E_CTRL_ERRORCODES; // PT1 error code
 END_VAR
 
 VAR
 	fbMoveVel1		   : MC_MoveVelocity;
 	fbMoveVel2		   : MC_MoveVelocity;
-	fbStop			   : MC_Stop;
+	fbHalt			   : MC_Halt;
 	bToggle			   : BOOL  := FALSE;
 	rLastVelocity	   : LREAL := 0.0;
 	bFirstCycle		   : BOOL  := TRUE;
-	rVelocityTolerance : LREAL := 0.1; // Threshold for issuing new command
+	rVelocityTolerance : LREAL := 0.00001; // Threshold for issuing new command
 	rAbsVelocity	   : LREAL;
 	eDirection		   : MC_Direction;
 	bStopActive		   : BOOL := FALSE;
-END_VAR]]></Declaration>
+
+	// PT1 smoothing
+	fbPT1			 : FB_CTRL_PT1;
+	stPT1Params		 : ST_CTRL_PT1_PARAMS;
+	fbGetCycleTime	 : FB_CTRL_GET_TASK_CYCLETIME;
+	bPT1Initialized	 : BOOL := FALSE;
+END_VAR
+]]></Declaration>
     <Implementation>
-      <ST><![CDATA[// Determine if we need to issue a new velocity command
+      <ST><![CDATA[// Initialize PT1 parameters once task cycle time is known
+IF NOT bPT1Initialized THEN
+	fbGetCycleTime(eMode := eCTRL_MODE_ACTIVE);
+	IF fbGetCycleTime.bCycleTimeValid THEN
+		stPT1Params.tTaskCycleTime := fbGetCycleTime.tTaskCycleTime;
+		stPT1Params.tCtrlCycleTime := fbGetCycleTime.tTaskCycleTime; // Process every cycle
+		bPT1Initialized			   := TRUE;
+	ELSE
+		// PT1 not ready yet - set defaults and exit early
+		WorkingVelocity := TargetVelocity;
+		FilterError		:= FALSE;
+		FilterErrorID	:= eCTRL_ERROR_NOERROR;
+		RETURN;
+	END_IF
+END_IF
+
+// Update PT1 parameters from inputs (allows runtime tuning)
+stPT1Params.fKp := 1;
+stPT1Params.tT1 := FilterTimeConstant;
+
+// Apply velocity smoothing if enabled
+IF EnableSmoothing THEN
+	fbPT1(fIn			:= TargetVelocity,
+		  fManSyncValue := TargetVelocity,
+		  bSync			:= FALSE,
+		  eMode			:= eCTRL_MODE_ACTIVE,
+		  bHold			:= FALSE,
+		  stParams		:= stPT1Params);
+
+	WorkingVelocity := fbPT1.fOut;
+	FilterError		:= fbPT1.bError;
+	FilterErrorID	:= fbPT1.eErrorId;
+ELSE
+	// No smoothing - sync PT1 to current value
+	fbPT1(fIn			:= TargetVelocity,
+		  fManSyncValue := TargetVelocity,
+		  bSync			:= TRUE, // Sync to input when smoothing disabled
+		  eMode			:= eCTRL_MODE_ACTIVE,
+		  bHold			:= FALSE,
+		  stParams		:= stPT1Params);
+
+	WorkingVelocity := TargetVelocity;
+	FilterError		:= fbPT1.bError;
+	FilterErrorID	:= fbPT1.eErrorId;
+END_IF
+
+// Determine if we need to issue a new velocity command
 IF Enable THEN
-	// Check if we should stop (TargetVelocity = 0)
-	IF ABS(TargetVelocity) < rVelocityTolerance THEN
+	// Check if we should stop (working velocity near zero)
+	IF ABS(WorkingVelocity) < rVelocityTolerance THEN
 		// Issue stop command if not already stopping
 		IF NOT bStopActive THEN
 			bStopActive	  := TRUE;
@@ -43,7 +101,7 @@ IF Enable THEN
 		END_IF
 
 		// Execute stop with aborting buffer mode
-		fbStop(Axis			:= Axis,
+		fbHalt(Axis			:= Axis,
 			   Execute		:= TRUE,
 			   Deceleration := Deceleration,
 			   Jerk			:= Jerk);
@@ -51,30 +109,30 @@ IF Enable THEN
 		// Reset velocity FBs
 		fbMoveVel1(Axis := Axis, Execute := FALSE);
 		fbMoveVel2(Axis := Axis, Execute := FALSE);
-		Stopped := fbStop.Done;
-		Active	:= fbStop.Busy;
-		Error	:= fbStop.Error;
-		ErrorID := fbStop.ErrorID;
+		Stopped := fbHalt.Done;
+		Active	:= fbHalt.Busy;
+		Error	:= fbHalt.Error;
+		ErrorID := fbHalt.ErrorID;
 	ELSE
 		// We have a non-zero target velocity
 		bStopActive := FALSE;
 
 		// Reset stop FB
-		fbStop(Axis := Axis, Execute := FALSE);
+		fbHalt(Axis := Axis, Execute := FALSE);
 
 		// Calculate absolute velocity and direction
-		rAbsVelocity := ABS(TargetVelocity);
-		IF TargetVelocity >= 0.0 THEN
+		rAbsVelocity := ABS(WorkingVelocity);
+		IF WorkingVelocity >= 0.0 THEN
 			eDirection := MC_Positive_Direction;
 		ELSE
 			eDirection := MC_Negative_Direction;
 		END_IF
 
 		// Check if velocity setpoint has changed significantly
-		IF ABS(TargetVelocity - rLastVelocity) > rVelocityTolerance OR bFirstCycle THEN
+		IF ABS(WorkingVelocity - rLastVelocity) > rVelocityTolerance OR bFirstCycle THEN
 			// Toggle between FB instances to achieve buffer aborting
 			bToggle		  := NOT bToggle;
-			rLastVelocity := TargetVelocity;
+			rLastVelocity := WorkingVelocity;
 			bFirstCycle	  := FALSE;
 		END_IF
 
@@ -109,14 +167,28 @@ ELSE
 	// Reset when disabled
 	fbMoveVel1(Axis := Axis, Execute := FALSE);
 	fbMoveVel2(Axis := Axis, Execute := FALSE);
-	fbStop(Axis := Axis, Execute := FALSE);
+	fbHalt(Axis := Axis, Execute := FALSE);
 	bFirstCycle := TRUE;
 	bStopActive := FALSE;
-	Active		:= FALSE;
-	Stopped		:= FALSE;
-	Error		:= FALSE;
-	ErrorID		:= 0;
-END_IF]]></ST>
+	
+	// Sync PT1 to zero when disabled
+	fbPT1(fIn			:= 0.0,
+		  fManSyncValue := 0.0,
+		  bSync			:= TRUE,
+		  eMode			:= eCTRL_MODE_ACTIVE,
+		  bHold			:= FALSE,
+		  stParams		:= stPT1Params);
+
+	FilterError	  := fbPT1.bError;
+	FilterErrorID := fbPT1.eErrorId;
+
+	Active			:= FALSE;
+	Stopped			:= FALSE;
+	Error			:= FALSE;
+	ErrorID			:= 0;
+	WorkingVelocity := 0.0;
+END_IF
+]]></ST>
     </Implementation>
   </POU>
 </TcPlcObject>

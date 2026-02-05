@@ -15,6 +15,8 @@
 #
 
 I,simulate_scanners,                                               1 # Enables scanner simulation even when rest of the sw is not simulated.
+I,ignore_env_seg_machine_type,                                       1 # 
+
 
 # Parameters specific to each vehicle type
 I,machine_type_id,                                             10017 # Id of vehicle type
@@ -31,8 +33,8 @@ S,front_scanner_ip,                                     192.168.56.1 # Front sca
 S,rear_scanner_ip,                                      192.168.56.1 # Rear scanner IP, e.g. 10.10.6.102.
 I,front_scanner_port,                                          12221 # Front scanner port: Sick 2111, PEF 80, Omron 44818, Velodyne 2368, Hokuyo 10940, Leuze 9999, Keyence 8800, QuanergyM1 4141
 I,rear_scanner_port,                                           12222 # Rear scanner port: Sick 2111, PEF 80, Omron 44818, Velodyne 2368, Hokuyo 10940, Leuze 9999, Keyence 8800, QuanergyM1 4141
-F,scan_delay_ms,                                           40.000000 # Delay of scanner measurement [ms] relative to odometry measurements. Negative if scanner measurement is older than odometry.; min -500.000000, max 500.000000
-I,control_interval_us,                                         30000 # Requested or expected nominal control interval [us].; min 1000, max 100000
+F,scan_delay_ms,                                          40.000000  # Delay of scanner measurement [ms] relative to odometry measurements. Negative if scanner measurement is older than odometry.; min -500.000000, max 500.000000
+I,control_interval_us,                                         10000  # Requested or expected nominal control interval [us].; min 1000, max 100000
 F,control_interval_error_ratio,                             2.000000 # Defines how much measured control interval can deviate from requested/nominal (e.g. 1.3 means 30%).; min 1.100000, max 10.000000
 
 # Parameters that need to be calibrated for each individual vehicle
@@ -61,7 +63,7 @@ F,odo_auto_corr_alpha_ds,                                 0.00100000 # Relative 
 F,odo_auto_corr_alpha_h,                                  0.00100000 # Relative amount of averaged positioning error applied on odometry heading correction, must be lower than odo_err_est_alpha, set to 0 to disable, ex. value 0.001.; min 0.000000, max 0.100000
 
 # General position controller parameters
-I,pc_predict_ms,                                                 150 # Motor controller delay from output value change to change in feedback.; min 0, max 700
+I,pc_predict_ms,                                                120   # Motor controller delay from output value change to change in feedback.; min 0, max 700
 F,pc_pid_heading_p,                                        10.000000 # Position control gain for the heading error. The higher the gain the faster the AGV tries to minimize the heading error on the route.; min 0.100000, max 100.000000
 F,pc_pid_dist_p,                                           15.000000 # Position control gain for the distance error. The higher the gain the faster the AGV tries to minimize the distance error on the route.; min 0.100000, max 100.000000
 F,max_turn_rate_deg_p_s,                                   90.000000 # Maximum turning rate of the vehicle. Limits AGV's speed on the trajectory.
@@ -69,10 +71,12 @@ F,max_turn_rate_deg_p_s,                                   90.000000 # Maximum t
 # Speed controller parameters
 F,mot_ctrl_max_wheel_v_fw,                                  2.200000 # Default maximum drive wheel velocity when driving forwards [m/s]
 F,mot_ctrl_max_wheel_v_bw,                                  2.200000 # Default maximum drive wheel velocity when driving in reverse [m/s]
-F,mot_ctrl_max_wheel_acc,                                   1.000000 # Default maximum drive wheel acceleration [m/s^2]. The reference speed is ramped up based on this value.
+F,mot_ctrl_max_wheel_acc,                                   0.800000 # Default maximum drive wheel acceleration [m/s^2]. The reference speed is ramped up based on this value.
 F,mot_ctrl_max_wheel_dec,                                   1.000000 # Default maximum drive wheel deceleration [m/s^2]. The reference speed is ramped down based on this value.
-F,mot_ctrl_left_dist_scale,                          -0.000001000000 # Conv # Convert encoder pulses of the left wheel to driven distance [m] (differential drive).
-F,mot_ctrl_right_dist_scale,                         -0.000001000000 # Conv # Convert encoder pulses of the left wheel to driven distance [m] (differential drive).
+F,mot_ctrl_left_dist_scale,                           0.0000001000000 # Convert encoder pulses of the left wheel to driven distance [m] (differential drive).
+F,mot_ctrl_right_dist_scale,                          0.0000001000000 # Convert encoder pulses of the left wheel to driven distance [m] (differential drive).
+I,mot_ctrl_left_inv_out,                                             0 # Output inversion for the left wheel of diff drive: 0 = disabled, 1 = enabled
+I,mot_ctrl_right_inv_out,                                            0 # Output inversion for the right wheel of diff drive: 0 = disabled, 1 = enabled
 
 #other
 F,blink_ahead_min_dist,                                     1.000000 # defines the minimum distance ahead of the curve where the blinker is activated
@@ -98,6 +102,8 @@ I,pos_init_max_wait_time,                                      10000
 F,pos_ini_min_conf,                                        70.000000
 I,pos_ini_min_reflectors_seen,                                     0 # Minimum number of reflectors required to be seen when initializing position
 F,pos_ini_max_reflector_pos_err,                           0.0500000 # Maximum position error of reflectors during position initialization
+
+
 
 
 
